@@ -29,5 +29,6 @@ Nicht bauen: Konten, Gruppen-Statistik, Strava-Anbindung, eigenes Routing, Rangl
 
 ## Veröffentlichen
 - Git ist eingerichtet (Branch `main`, Autor `Bauer-Reisen` mit noreply-Adresse).
-- Offen: Repo `bike-app` auf GitHub anlegen (öffentlich, leer), dann `git remote add origin https://github.com/Bauer-Reisen/bike-app.git` und `git push -u origin main`, danach Pages einschalten (Settings → Pages → Branch `main`, Ordner `/ (root)`).
+- Repo `Bauer-Reisen/bike-app` angelegt (Nutzerin, 13.11.2026), erster Push erledigt. Hochladen künftig mit `git push` (Zugang gespeichert, Privat-Prüfung läuft vorher).
+- Pages einschalten (Settings → Pages → Branch `main`, Ordner `/ (root)`): macht die Nutzerin – danach hier abhaken. [ ]
 - Der Link wird dann sein: https://bauer-reisen.github.io/bike-app/
