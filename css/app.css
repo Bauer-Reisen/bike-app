@@ -212,3 +212,142 @@ button { font: inherit; }
   z-index: 20; max-width: 600px; margin: 0 auto; padding: 14px 16px; border-radius: 12px;
   background: var(--text); color: var(--bg); font-weight: 600;
 }
+
+/* ---------- Kopf mit Zahnrad ---------- */
+.kopf-zeile { display: flex; align-items: center; justify-content: space-between; max-width: 640px; margin: 0 auto 10px; gap: 8px; }
+.kopf-zeile h1 { margin: 0; }
+.kopf-knopf {
+  min-width: 52px; min-height: 52px; border-radius: 26px; border: 2px solid currentColor;
+  background: transparent; color: inherit; font-size: 1.5rem; line-height: 1;
+}
+.orte[hidden] + * { margin-top: 0; }
+.tab { font-size: 0.8rem; padding: 0 2px; }
+.tab span { font-size: 1.35rem; }
+
+/* ---------- Panne ---------- */
+.knopf.panne { background: #b45309; color: #fff; margin-top: 16px; }
+.knopf.notruf { background: var(--rot); color: #fff; display: flex; align-items: center; justify-content: center; text-decoration: none; }
+.panne-raster { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 12px 0; }
+.panne-knopf {
+  min-height: 110px; border-radius: var(--radius); border: 2px solid var(--linie);
+  background: var(--karte); color: var(--text); font-weight: 700; font-size: 1rem;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 10px;
+}
+.panne-knopf.notfall { border-color: var(--rot); }
+.panne-icon { font-size: 2rem; }
+.hilfe h3 { margin-top: 0; }
+
+/* ---------- Technik ---------- */
+.rad-box { background: var(--karte); border: 1px solid var(--linie); border-radius: var(--radius); padding: 6px; }
+.rad-svg { width: 100%; height: auto; display: block; }
+.rad-svg line, .rad-svg circle, .rad-svg path, .rad-svg rect { stroke-linecap: round; }
+.rad-svg .rahmen line { stroke: var(--text); stroke-width: 14; }
+.rad-svg .reifen { fill: none; stroke: #3a3f3c; }
+.rad-svg .duenn, .rad-svg .dick { fill: none; stroke: var(--leise); }
+.rad-svg .speiche line { stroke: var(--linie); stroke-width: 2; }
+.rad-svg .scheibe { fill: none; stroke: #9aa3a0; }
+.rad-svg .voll { fill: var(--leise); stroke: none; }
+.rad-svg .akku { stroke: #2563eb; }
+.rad-svg .motor { fill: #475569; }
+.rad-svg .daempfer { stroke: #7c3aed; }
+.rad-svg .standrohr { stroke: #c0c6c2; }
+.rad-svg .kette { stroke: #6b7280; stroke-dasharray: 8 4; }
+.rad-svg .schloss { fill: #d4a017; }
+.rad-svg .schaltauge { fill: #d97706; }
+.rad-svg .teil { cursor: pointer; }
+.rad-svg .teil.aktiv * { stroke: #f59e0b !important; }
+.rad-svg .teil.aktiv .voll, .rad-svg .teil.aktiv rect, .rad-svg .teil.aktiv .schaltauge { fill: #f59e0b !important; }
+@media (prefers-color-scheme: dark) { .rad-svg .reifen { stroke: #9ca3af; } }
+.teile-liste { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.teile-liste .knopf { margin: 0; min-height: 56px; font-size: 0.95rem; padding: 4px 8px; }
+.teil-karte { border: 2px solid #f59e0b; }
+.teil-karte h3 { margin-top: 0; }
+.knopf.links { text-align: left; padding: 0 18px; }
+.knopf small { font-weight: 400; color: var(--leise); }
+.schritt { background: var(--karte); border: 1px solid var(--linie); border-radius: var(--radius); padding: 16px; margin: 12px 0; min-height: 40vh; }
+.schritt h3 { font-size: 1.3rem; margin: 10px 0; }
+.schritt p { font-size: 1.1rem; }
+.schritt-nr { font-weight: 700; color: var(--leise); }
+.fortschritt { height: 8px; background: var(--linie); border-radius: 4px; overflow: hidden; margin-top: 6px; }
+.fortschritt div { height: 100%; background: var(--primaer); }
+.foto-platz { margin-top: 12px; padding: 14px; border: 2px dashed var(--linie); border-radius: 12px; color: var(--leise); }
+.schritt-nav { position: sticky; bottom: calc(var(--leiste-h) + env(safe-area-inset-bottom) + 8px); }
+.knopf:disabled { opacity: .4; }
+.hersteller { font-weight: 700; }
+h3 { font-size: 1.1rem; margin: 20px 0 8px; }
+.dialog-inhalt { padding-top: 8px; }
+
+/* ---------- Allgemein: Chips, Felder ---------- */
+.oben-abstand { margin-top: 16px; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0; }
+.chip {
+  min-height: 48px; padding: 0 16px; border-radius: 24px; border: 2px solid var(--linie);
+  background: var(--karte); color: var(--text); font-weight: 600;
+}
+.chip.gross { min-width: 56px; font-size: 1.1rem; }
+.chip.aktiv { background: var(--primaer); color: var(--primaer-text); border-color: var(--primaer); }
+.feld-label { display: block; font-size: 0.95rem; color: var(--leise); margin: 12px 0 4px; }
+.feld-label .feld { margin-top: 4px; color: var(--text); }
+input[type="date"].feld { appearance: none; -webkit-appearance: none; }
+.knopf.loeschen { color: var(--rot); border-color: var(--rot); }
+.links-knopf { display: flex; align-items: center; justify-content: center; text-decoration: none; text-align: center; padding: 0 16px; }
+.punkt { display: inline-block; width: 14px; height: 14px; border-radius: 50%; margin-right: 8px; vertical-align: -1px; }
+.punkt.gross { width: 22px; height: 22px; vertical-align: -5px; }
+
+/* ---------- Fahrten ---------- */
+.knopf.aufzeichnen small { display: block; font-size: 0.85rem; }
+.statistik { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.stat-karte { background: var(--karte); border: 1px solid var(--linie); border-radius: var(--radius); padding: 12px; }
+.stat-karte h3 { margin: 0 0 4px; }
+.stat-gross { font-size: 1.8rem; font-weight: 800; }
+.stat-gross small { font-size: 1rem; font-weight: 600; color: var(--leise); }
+.stat-zeile { display: flex; justify-content: space-between; gap: 6px; font-size: 0.9rem; padding: 4px 0; border-top: 1px solid var(--linie); }
+.stat-vergleich { font-size: 0.85rem; color: var(--leise); margin-top: 8px; }
+.fahrt-liste { display: grid; gap: 8px; }
+.fahrt, .route {
+  display: flex; flex-direction: column; gap: 4px; text-align: left; width: 100%;
+  background: var(--karte); color: var(--text); border: 1px solid var(--linie); border-radius: 12px; padding: 12px 14px; font: inherit;
+}
+.route { margin-bottom: 8px; }
+.fahrt small { color: var(--leise); }
+.fahrt-kopf { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+.rad-tag { font-size: 0.8rem; font-weight: 700; padding: 2px 8px; border-radius: 10px; color: #fff; margin-left: 4px; }
+.rad-tag.emtb { background: #b45309; }
+.rad-tag.gravel { background: #2563eb; }
+.emtb-zusatz { margin-top: 16px; }
+.auf-werte { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 10px 0; text-align: center; }
+.auf-werte small { color: var(--leise); }
+.auf-gross { font-size: 2rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+.auf-karte { height: 40vh; }
+
+/* ---------- Routen ---------- */
+.routen-karte { height: 45vh; margin: 12px 0; }
+.karte-knopf {
+  width: 48px; height: 48px; border-radius: 8px; border: 2px solid rgba(0,0,0,.25);
+  background: #fff; font-size: 26px; line-height: 1; cursor: pointer; color: #1f2937;
+}
+.karte-knopf.an { background: #2563eb; color: #fff; }
+.steckbrief { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 10px 0; }
+.steckbrief div { background: var(--karte); border: 1px solid var(--linie); border-radius: 10px; padding: 8px 10px; }
+.steckbrief small { display: block; color: var(--leise); }
+.routen-ampel { margin-top: 10px; font-size: 1.1rem; }
+.dialog .karte-box { height: 40vh; margin: 10px 0; }
+
+/* ---------- Training ---------- */
+.balken-box { margin-top: 12px; }
+.balken { position: relative; height: 26px; border-radius: 13px; background: var(--linie); overflow: visible; margin-top: 6px; }
+.balken-fuell { height: 100%; border-radius: 13px; background: var(--gruen); }
+.balken-marke { position: absolute; top: -6px; bottom: -6px; width: 4px; margin-left: -2px; background: var(--text); border-radius: 2px; }
+.balken-skala { position: relative; height: 20px; font-size: 0.8rem; color: var(--leise); }
+.balken-skala span { position: absolute; top: 2px; }
+.balken-skala span:first-child { left: 0; }
+.balken-skala span:nth-child(2) { transform: translateX(-50%); font-weight: 700; color: var(--text); }
+.balken-skala span:last-child { right: 0; }
+.woche p { margin: 8px 0; }
+.entlastung { font-weight: 700; }
+.geschafft { color: var(--gruen); font-weight: 700; }
+.bester-tag { font-weight: 600; }
+.wochen-liste { display: grid; gap: 4px; }
+.wochen-zeile { display: flex; justify-content: space-between; padding: 10px 12px; background: var(--karte); border: 1px solid var(--linie); border-radius: 10px; }
+.wochen-zeile.jetzt { border: 2px solid var(--primaer); font-weight: 700; }
+.arzt { margin-top: 20px; font-style: italic; }

@@ -13,6 +13,16 @@ später Routen, Fahrtenbuch, Trainingsplan und Technik-Hilfe.
 Alle Schwellen stehen in [`js/schwellen.js`](js/schwellen.js).
 Prüfen danach: `node tools/check-ampel.mjs`
 
+## Prüfen
+
+- `node tools/check-ampel.mjs` – Ampel-Regeln
+- `node tools/check-training.mjs` – Trainingsplan
+- `node tools/check-privat.mjs` – nichts Privates im Repository (läuft vor jedem Push)
+
+## Kuratierte Routen hinzufügen
+
+`node tools/gpx-bereinigen.mjs <datei.gpx> --id <id> --name "…" --rad emtb --untergrund "Waldweg,Trail" --nass ja --start "…"`
+
 ## Lokal testen
 
 `node tools/server.mjs` → http://localhost:5600

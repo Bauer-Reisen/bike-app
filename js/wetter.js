@@ -11,7 +11,7 @@ export async function holeWetter(lat, lon) {
   const url = 'https://api.open-meteo.com/v1/forecast'
     + `?latitude=${lat.toFixed(3)}&longitude=${lon.toFixed(3)}`
     + `&hourly=${HOURLY}&daily=sunrise,sunset`
-    + `&past_days=3&forecast_days=4&timezone=${encodeURIComponent(ZEITZONE)}`;
+    + `&past_days=3&forecast_days=7&timezone=${encodeURIComponent(ZEITZONE)}`;
   const res = await fetch(url);
   if (!res.ok) throw new Error('Wetterdienst antwortet nicht (' + res.status + ')');
   const j = await res.json();

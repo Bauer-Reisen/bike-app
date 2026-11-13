@@ -6,24 +6,15 @@ import {
   empfehlung, istHell,
 } from './ampel.js';
 
-const VERSION = '0.1.0';
-const CACHE_MINUTEN = 30;
-const $ = id => document.getElementById(id);
+import { state, melde, ortName } from './zustand.js';
+import { $, esc, toast, frage, ladeLeaflet, osmLayer, dateiTeilen, heuteIso } from './ui.js';
+import { VERSION } from './version.js';
 
-const state = {
-  orte: [],
-  auswahl: 'hier',     // 'hier' oder id eines Ortes
-  voreinstellung: 'normal',
-  daten: null,
-  bewertung: null,
-  s: null,
-  gewaehlt: null,      // { von, bis } Stunden-Index
-  standort: null,      // { lat, lon } aktueller Standort
-};
+const CACHE_MINUTEN = 30;
 
 // ---------------- Hilfen ----------------
 const WOCHENTAG = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
-function tagName(datum, heute) {
+export function tagName(datum, heute) {
   const d = new Date(datum + 'T12:00:00');
   const h = new Date(heute + 'T12:00:00');
   const diff = Math.round((d - h) / 86400000);
@@ -36,17 +27,7 @@ const STUFE_WORT = ['Passt', 'Mit Vorsicht', 'Lieber nicht'];
 const STUFE_FARBE = ['grün', 'gelb', 'rot'];
 const STUFE_EMOJI = ['🟢', '🟡', '🔴'];
 
-function toast(text, ms = 3500) {
-  const t = $('toast');
-  t.textContent = text;
-  t.hidden = false;
-  clearTimeout(toast.timer);
-  toast.timer = setTimeout(() => { t.hidden = true; }, ms);
-}
-
 function status(html) { $('status').innerHTML = html; }
-
-const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
 // ---------------- Start ----------------
 async function start() {
@@ -63,7 +44,27 @@ async function start() {
   zeichneOrte();
   zeichneMehr();
   verbindeKnoepfe();
+  serviceWorker();
+  const start = new URLSearchParams(location.search).get('seite');
+  if (start && SEITEN[start]) zeigeSeite(start);
   laden();
+}
+
+// Offline-Speicher für die App-Dateien (Pannen-Hilfe ohne Netz).
+// Neue Versionen werden beim nächsten Öffnen mit Netz automatisch geholt.
+function serviceWorker() {
+  if (!('serviceWorker' in navigator) || location.protocol === 'file:') return;
+  const hatteSchon = !!navigator.serviceWorker.controller;
+  navigator.serviceWorker.register('sw.js').then(reg => {
+    reg.addEventListener('updatefound', () => {
+      const neu = reg.installing;
+      neu?.addEventListener('statechange', () => {
+        if (neu.state === 'activated' && hatteSchon) {
+          toast('Neue Version geladen – wird beim nächsten Öffnen aktiv.');
+        }
+      });
+    });
+  }).catch(() => { /* ohne Offline-Speicher geht die App trotzdem */ });
 }
 
 async function installHinweis() {
@@ -108,12 +109,7 @@ function zeichneOrte() {
   box.querySelector('[aria-selected="true"]')?.scrollIntoView({ inline: 'nearest', block: 'nearest' });
 }
 
-function ortName() {
-  if (state.auswahl === 'hier') return 'bei mir in der Nähe';
-  return state.orte.find(o => o.id === state.auswahl)?.name || '';
-}
-
-function holeStandort() {
+export function holeStandort() {
   return new Promise((resolve, reject) => {
     if (!('geolocation' in navigator)) return reject(new Error('kein GPS'));
     navigator.geolocation.getCurrentPosition(
@@ -159,8 +155,9 @@ async function laden(neu = false) {
     pos = { lat: o.lat, lon: o.lon };
   }
   if (nr !== ladeNr) return;
+  state.pos = pos;
 
-  const key = `cache:wetter:${pos.lat.toFixed(2)},${pos.lon.toFixed(2)}`;
+  const key = `cache:wetter7:${pos.lat.toFixed(2)},${pos.lon.toFixed(2)}`;
   let daten = await kv.get(key);
   const frisch = daten && Date.now() - daten.geholt < CACHE_MINUTEN * 60000;
   if (!frisch || neu) {
@@ -193,7 +190,7 @@ function tageAb(heute) {
   return state.daten.tage.map(t => t.datum).filter(d => d >= heute).slice(0, 4);
 }
 
-function abStunde(datum, jetzt) {
+export function abStunde(datum, jetzt) {
   if (datum !== jetzt.datum) return 0;
   return jetzt.minute < 30 ? jetzt.stunde : jetzt.stunde + 1;
 }
@@ -202,6 +199,7 @@ function berechne() {
   state.s = schwellenFuer(state.voreinstellung);
   state.bewertung = bewerteStunden(state.daten.stunden, state.s);
   zeichne();
+  melde('wetter');
 }
 
 function zeichne() {
@@ -247,7 +245,7 @@ function zeichne() {
   $('empfehlung').textContent = empfehlung(emtb, gravel, alternative, tagWort);
   zeichneGruende(emtb, gravel);
   $('eckdaten').textContent = eckdaten(fenster, tag);
-  state.aktuell = { titel, emtb, gravel, tag, text: $('empfehlung').textContent };
+  state.aktuell = { titel, emtb, gravel, tag, text: $('empfehlung').textContent, fenster: { von: fenster.von, bis: fenster.bis } };
 
   zeichneBaender(tage, beste, fenster, jetzt);
   $('ergebnis').hidden = false;
@@ -442,7 +440,7 @@ function zeichneMehr() {
     del.className = 'knopf klein hell';
     del.textContent = 'Löschen';
     del.onclick = async () => {
-      if (!confirm(`„${o.name}“ löschen?`)) return;
+      if (!await frage(`„${o.name}“ löschen?`, 'Löschen')) return;
       await loesche('orte', o.id);
       state.orte = state.orte.filter(x => x.id !== o.id);
       if (state.auswahl === o.id) { state.auswahl = 'hier'; kv.set('auswahl', 'hier'); laden(); }
@@ -453,14 +451,36 @@ function zeichneMehr() {
   }
 }
 
-function zeigeSeite(name) {
+// Seiten: Titel, ob die Orte oben gezeigt werden, Modul (wird erst bei Bedarf geladen)
+const SEITEN = {
+  heute:    { titel: 'Heute fahren?', orte: true },
+  routen:   { titel: 'Routen', orte: true, modul: './routen.js' },
+  fahrten:  { titel: 'Fahrtenbuch', modul: './fahrten.js' },
+  training: { titel: 'Training 100 km', modul: './training.js' },
+  technik:  { titel: 'Technik & Panne', modul: './technik.js' },
+  mehr:     { titel: 'Orte & Einstellungen' },
+};
+let aktuelleSeite = 'heute';
+
+export async function zeigeSeite(name, ...args) {
+  const s = SEITEN[name];
+  aktuelleSeite = name;
   for (const t of document.querySelectorAll('.tab')) t.classList.toggle('aktiv', t.dataset.seite === name);
-  $('seite-heute').hidden = name !== 'heute';
-  $('seite-mehr').hidden = name !== 'mehr';
-  $('orte').hidden = name !== 'heute';
-  $('titel').textContent = name === 'heute' ? 'Heute fahren?' : 'Orte & mehr';
+  for (const k of Object.keys(SEITEN)) $('seite-' + k).hidden = k !== name;
+  $('orte').hidden = !s.orte;
+  $('titel').textContent = s.titel;
+  $('zuMehr').hidden = name === 'mehr';
   scrollTo(0, 0);
+  if (s.modul) {
+    try {
+      const m = await import(s.modul);
+      if (aktuelleSeite === name) await m.zeige($('seite-' + name), ...args);
+    } catch (e) {
+      $('seite-' + name).innerHTML = `<div class="karte">Dieser Bereich konnte nicht geladen werden. Bist du offline?<br><small>${esc(e.message)}</small></div>`;
+    }
+  }
 }
+export const seiteJetzt = () => aktuelleSeite;
 
 // ---------------- Ort-Dialog ----------------
 let neuerOrt = null;
@@ -485,33 +505,15 @@ function setzeModus(m) {
   if (m === 'karte') zeigeKarte();
 }
 
-function ladeLeaflet() {
-  if (window.L) return Promise.resolve();
-  return new Promise((resolve, reject) => {
-    const css = document.createElement('link');
-    css.rel = 'stylesheet';
-    css.href = 'vendor/leaflet/leaflet.css';
-    document.head.appendChild(css);
-    const js = document.createElement('script');
-    js.src = 'vendor/leaflet/leaflet.js';
-    js.onload = resolve;
-    js.onerror = () => reject(new Error('Karte konnte nicht geladen werden'));
-    document.head.appendChild(js);
-  });
-}
-
 async function zeigeKarte() {
-  try { await ladeLeaflet(); } catch (e) { toast(e.message); return; }
-  const L = window.L;
+  let L;
+  try { L = await ladeLeaflet(); } catch (e) { toast(e.message); return; }
   const mitte = state.auswahl === 'hier' && state.standort
     ? [state.standort.lat, state.standort.lon]
     : (() => { const o = state.orte.find(x => x.id === state.auswahl); return o ? [o.lat, o.lon] : [50.35, 10.0]; })();
   if (!karte) {
     karte = L.map('karte', { zoomControl: true }).setView(mitte, 11);
-    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 18,
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>-Mitwirkende',
-    }).addTo(karte);
+    osmLayer(L).addTo(karte);
     karte.on('click', ev => {
       if (marker) marker.setLatLng(ev.latlng);
       else marker = L.marker(ev.latlng).addTo(karte);
@@ -572,23 +574,21 @@ async function ortSpeichern() {
 }
 
 // ---------------- Backup ----------------
-async function backupSpeichern() {
+export async function backupSpeichern() {
   const json = await backupErstellen();
-  const datum = new Date().toISOString().slice(0, 10);
-  const name = `bike-app-backup-${datum}.json`;
-  const text = JSON.stringify(json, null, 1);
-  const file = new File([text], name, { type: 'application/json' });
-  if (navigator.canShare?.({ files: [file] })) {
-    try { await navigator.share({ files: [file], title: name }); await kv.set('letztesBackup', Date.now()); return; }
-    catch (e) { if (e.name === 'AbortError') return; }
+  const name = `bike-app-backup-${heuteIso()}.json`;
+  const ok = await dateiTeilen(JSON.stringify(json), name, 'application/json');
+  if (ok) {
+    await kv.set('letztesBackup', Date.now());
+    zeigeBackupStand();
   }
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(file);
-  a.download = name;
-  document.body.appendChild(a);
-  a.click();
-  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
-  await kv.set('letztesBackup', Date.now());
+}
+
+async function zeigeBackupStand() {
+  const t = await kv.get('letztesBackup');
+  $('backupStand').textContent = t
+    ? 'Letztes Backup: ' + new Date(t).toLocaleDateString('de-DE')
+    : 'Noch kein Backup gespeichert.';
 }
 
 async function backupDatei(ev) {
@@ -602,6 +602,7 @@ async function backupDatei(ev) {
     state.voreinstellung = (await kv.get('voreinstellung')) || 'normal';
     zeichneOrte(); zeichneMehr();
     if (state.daten) berechne();
+    melde('daten');
     toast(`Backup geladen (${n} Einträge).`);
   } catch (e) {
     toast(e instanceof SyntaxError ? 'Die Datei ist beschädigt oder kein Backup.' : e.message, 5000);
@@ -611,6 +612,8 @@ async function backupDatei(ev) {
 // ---------------- Knöpfe ----------------
 function verbindeKnoepfe() {
   for (const t of document.querySelectorAll('.tab')) t.onclick = () => zeigeSeite(t.dataset.seite);
+  $('zuMehr').onclick = () => { zeigeSeite('mehr'); zeigeBackupStand(); };
+  $('panneHeute').onclick = () => zeigeSeite('technik', 'panne');
   $('installOk').onclick = () => { $('installHinweis').hidden = true; kv.set('installHinweisGesehen', true); };
   $('teilen').onclick = teilen;
   for (const b of $('voreinstellung').querySelectorAll('button')) {

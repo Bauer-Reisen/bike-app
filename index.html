@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Bike-App</title>
-  <meta name="description" content="Heute fahren? Ampel für E-MTB und Gravel.">
+  <meta name="description" content="Heute fahren? Ampel für E-MTB und Gravel, Routen, Fahrtenbuch, Training und Pannenhilfe.">
   <meta name="theme-color" content="#14532d">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
@@ -13,11 +13,14 @@
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
   <link rel="icon" href="icons/icon-192.png">
-  <link rel="stylesheet" href="css/app.css?v=0.1.0">
+  <link rel="stylesheet" href="css/app.css">
 </head>
 <body>
   <header class="kopf">
-    <h1 id="titel">Heute fahren?</h1>
+    <div class="kopf-zeile">
+      <h1 id="titel">Heute fahren?</h1>
+      <button class="kopf-knopf" id="zuMehr" aria-label="Orte und Einstellungen">⚙︎</button>
+    </div>
     <div class="orte" id="orte" role="tablist" aria-label="Standort wählen"></div>
   </header>
 
@@ -30,6 +33,8 @@
           Sonst kann Safari deine gespeicherten Orte und Fahrten nach einiger Zeit löschen.</p>
         <button class="knopf klein" id="installOk">Verstanden</button>
       </div>
+
+      <button class="knopf panne" id="panneHeute">🛠 Panne? Hilfe – auch ohne Netz</button>
 
       <div id="status" class="status" aria-live="polite"></div>
 
@@ -67,7 +72,13 @@
       <p class="quelle"><a href="https://open-meteo.com/" target="_blank" rel="noopener">Weather data by Open-Meteo.com</a></p>
     </section>
 
-    <!-- ===== MEHR ===== -->
+    <!-- ===== ROUTEN / FAHRTEN / TRAINING / TECHNIK: Inhalt kommt aus den Modulen ===== -->
+    <section class="seite" id="seite-routen" hidden></section>
+    <section class="seite" id="seite-fahrten" hidden></section>
+    <section class="seite" id="seite-training" hidden></section>
+    <section class="seite" id="seite-technik" hidden></section>
+
+    <!-- ===== MEHR (Orte & Einstellungen) ===== -->
     <section class="seite" id="seite-mehr" hidden>
       <h2>Wie vorsichtig?</h2>
       <p class="klein-text">Verschiebt alle Schwellen der Ampel.</p>
@@ -82,14 +93,15 @@
       <button class="knopf" id="ortNeu">＋ Ort hinzufügen</button>
 
       <h2>Backup</h2>
-      <p class="klein-text">Deine Orte und Einstellungen liegen nur auf diesem Handy. Speichere ab und zu ein Backup,
-        z. B. in „Dateien“ oder iCloud.</p>
+      <p class="klein-text">Deine Orte, Fahrten, eigenen Routen und dein Trainingsplan liegen nur auf diesem Handy.
+        Speichere ab und zu ein Backup, z. B. in „Dateien“ oder iCloud.</p>
+      <p class="klein-text" id="backupStand"></p>
       <button class="knopf" id="backupSpeichern">Backup speichern</button>
       <button class="knopf hell" id="backupLaden">Backup laden</button>
       <input type="file" id="backupDatei" accept=".json,application/json" hidden>
 
       <h2>Über die App</h2>
-      <p class="klein-text">Keine Anmeldung, keine Werbung. Wetter von Open-Meteo, Ortssuche von Open-Meteo,
+      <p class="klein-text">Keine Anmeldung, keine Werbung. Wetter und Ortssuche von Open-Meteo,
         Karte © OpenStreetMap-Mitwirkende. Alles Persönliche bleibt auf deinem Gerät.</p>
       <p class="klein-text" id="version"></p>
     </section>
@@ -97,7 +109,10 @@
 
   <nav class="leiste" aria-label="Bereiche">
     <button class="tab aktiv" data-seite="heute"><span aria-hidden="true">🚦</span>Heute</button>
-    <button class="tab" data-seite="mehr"><span aria-hidden="true">⚙︎</span>Orte &amp; mehr</button>
+    <button class="tab" data-seite="routen"><span aria-hidden="true">🗺</span>Routen</button>
+    <button class="tab" data-seite="fahrten"><span aria-hidden="true">📒</span>Fahrten</button>
+    <button class="tab" data-seite="training"><span aria-hidden="true">🎯</span>Training</button>
+    <button class="tab" data-seite="technik"><span aria-hidden="true">🔧</span>Technik</button>
   </nav>
 
   <!-- Dialog: Ort hinzufügen -->
@@ -108,7 +123,7 @@
     </div>
     <div class="wahl zwei" id="ortModus">
       <button class="knopf" data-modus="suche">Ortssuche</button>
-      <button class="knopf hell" data-modus="karte">Auf der Karte</button>
+      <button class="knopf" data-modus="karte">Auf der Karte</button>
     </div>
     <div id="ortSuche">
       <input type="search" id="ortSuchfeld" class="feld" placeholder="z. B. Bischofsheim" autocomplete="off" enterkeyhint="search">
@@ -127,6 +142,6 @@
 
   <div id="toast" class="toast" role="status" hidden></div>
 
-  <script type="module" src="js/app.js?v=0.1.0"></script>
+  <script type="module" src="js/app.js"></script>
 </body>
 </html>
