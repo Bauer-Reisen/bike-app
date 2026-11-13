@@ -16,7 +16,7 @@ Nicht bauen: Konten, Gruppen-Statistik, Strava-Anbindung, eigenes Routing, Rangl
 - GPX-Export: Bosch Flow ja (Aktivität → ⋯ → GPX herunterladen), Komoot ja (App oder Website), Strava ja (nur Website → ⋯ → GPX exportieren).
 
 ## Abschnitte
-- [x] **Abschnitt 1 – Heute fahren?** (13.11.2026, Version 0.1.0) – gebaut und lokal getestet, **noch nicht veröffentlicht** (GitHub-Repo fehlt noch)
+- [x] **Abschnitt 1 – Heute fahren?** (13.11.2026, Version 0.1.0) – veröffentlicht: https://bauer-reisen.github.io/bike-app/
   - Dateien: `js/schwellen.js` (alle Schwellen + 3 Voreinstellungen), `js/ampel.js` (Regeln, bestes Fenster, Empfehlung), `js/wetter.js` (Open-Meteo + Ortssuche), `js/db.js` (IndexedDB + Backup), `js/app.js` (Oberfläche).
   - Prüfen: `node tools/check-ampel.mjs` (25 Testfälle), `node tools/check-privat.mjs` (läuft auch automatisch vor jedem Push).
   - Eigene Suchwörter für die Privat-Prüfung: `.privat-woerter.txt` (wird nie hochgeladen).
@@ -30,5 +30,6 @@ Nicht bauen: Konten, Gruppen-Statistik, Strava-Anbindung, eigenes Routing, Rangl
 ## Veröffentlichen
 - Git ist eingerichtet (Branch `main`, Autor `Bauer-Reisen` mit noreply-Adresse).
 - Repo `Bauer-Reisen/bike-app` angelegt (Nutzerin, 13.11.2026), erster Push erledigt. Hochladen künftig mit `git push` (Zugang gespeichert, Privat-Prüfung läuft vorher).
-- Pages einschalten (Settings → Pages → Branch `main`, Ordner `/ (root)`): macht die Nutzerin – danach hier abhaken. [ ]
+- Pages einschalten (Settings → Pages → Branch `main`, Ordner `/ (root)`): erledigt (13.11.2026), Seite online geprüft.
+- **Abschnitt 1 veröffentlicht. Warte auf das Okay der Nutzerin nach ihrem iPhone-Test.**
 - Der Link wird dann sein: https://bauer-reisen.github.io/bike-app/
