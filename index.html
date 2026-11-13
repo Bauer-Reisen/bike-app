@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Bike-App</title>
+  <meta name="description" content="Heute fahren? Ampel für E-MTB und Gravel.">
+  <meta name="theme-color" content="#14532d">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Bike-App">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="icon" href="icons/icon-192.png">
+  <link rel="stylesheet" href="css/app.css?v=0.1.0">
+</head>
+<body>
+  <header class="kopf">
+    <h1 id="titel">Heute fahren?</h1>
+    <div class="orte" id="orte" role="tablist" aria-label="Standort wählen"></div>
+  </header>
+
+  <main>
+    <!-- ===== HEUTE ===== -->
+    <section class="seite" id="seite-heute">
+      <div id="installHinweis" class="karte hinweis-install" hidden>
+        <strong>Tipp: Zum Home-Bildschirm hinzufügen</strong>
+        <p>Tippe unten in Safari auf <span class="teilen-symbol" aria-hidden="true">⬆︎</span> <em>Teilen</em> und dann auf <em>Zum Home-Bildschirm</em>.
+          Sonst kann Safari deine gespeicherten Orte und Fahrten nach einiger Zeit löschen.</p>
+        <button class="knopf klein" id="installOk">Verstanden</button>
+      </div>
+
+      <div id="status" class="status" aria-live="polite"></div>
+
+      <div id="ergebnis" hidden>
+        <p class="fenster-titel" id="fensterTitel"></p>
+        <div class="ampeln">
+          <div class="ampel" id="ampel-emtb">
+            <div class="licht" aria-hidden="true"></div>
+            <div class="rad">E-MTB</div>
+            <div class="art">Trail / Wald</div>
+            <div class="wort"></div>
+          </div>
+          <div class="ampel" id="ampel-gravel">
+            <div class="licht" aria-hidden="true"></div>
+            <div class="rad">Gravel</div>
+            <div class="art">Schotter / Asphalt</div>
+            <div class="wort"></div>
+          </div>
+        </div>
+
+        <p class="empfehlung" id="empfehlung"></p>
+        <div id="gruende" class="gruende"></div>
+        <p class="eckdaten" id="eckdaten"></p>
+
+        <button class="knopf whatsapp" id="teilen">In WhatsApp teilen</button>
+
+        <h2>Bestes Zeitfenster</h2>
+        <p class="klein-text">Tippe auf einen Tag oder eine Stunde, um oben die Ampel dafür zu sehen. Umrandet = bestes Fenster.</p>
+        <div id="baender" class="baender"></div>
+
+        <p class="klein-text ehrlich">Ehrlicher Hinweis: Bodentemperatur und Bodenfeuchte sind Modellwerte für die Gegend
+          (Raster von einigen Kilometern), nicht für den einzelnen Trail. Schattenhänge, Senken und Nordseiten können anders sein.</p>
+      </div>
+
+      <p class="quelle"><a href="https://open-meteo.com/" target="_blank" rel="noopener">Weather data by Open-Meteo.com</a></p>
+    </section>
+
+    <!-- ===== MEHR ===== -->
+    <section class="seite" id="seite-mehr" hidden>
+      <h2>Wie vorsichtig?</h2>
+      <p class="klein-text">Verschiebt alle Schwellen der Ampel.</p>
+      <div class="wahl" id="voreinstellung">
+        <button class="knopf" data-wert="vorsichtig">Vorsichtig</button>
+        <button class="knopf" data-wert="normal">Normal</button>
+        <button class="knopf" data-wert="hart">Hart im Nehmen</button>
+      </div>
+
+      <h2>Meine Orte</h2>
+      <ul class="ortliste" id="ortliste"></ul>
+      <button class="knopf" id="ortNeu">＋ Ort hinzufügen</button>
+
+      <h2>Backup</h2>
+      <p class="klein-text">Deine Orte und Einstellungen liegen nur auf diesem Handy. Speichere ab und zu ein Backup,
+        z. B. in „Dateien“ oder iCloud.</p>
+      <button class="knopf" id="backupSpeichern">Backup speichern</button>
+      <button class="knopf hell" id="backupLaden">Backup laden</button>
+      <input type="file" id="backupDatei" accept=".json,application/json" hidden>
+
+      <h2>Über die App</h2>
+      <p class="klein-text">Keine Anmeldung, keine Werbung. Wetter von Open-Meteo, Ortssuche von Open-Meteo,
+        Karte © OpenStreetMap-Mitwirkende. Alles Persönliche bleibt auf deinem Gerät.</p>
+      <p class="klein-text" id="version"></p>
+    </section>
+  </main>
+
+  <nav class="leiste" aria-label="Bereiche">
+    <button class="tab aktiv" data-seite="heute"><span aria-hidden="true">🚦</span>Heute</button>
+    <button class="tab" data-seite="mehr"><span aria-hidden="true">⚙︎</span>Orte &amp; mehr</button>
+  </nav>
+
+  <!-- Dialog: Ort hinzufügen -->
+  <dialog id="ortDialog" class="dialog">
+    <div class="dialog-kopf">
+      <h2>Ort hinzufügen</h2>
+      <button class="knopf klein hell" id="ortDialogZu" aria-label="Schließen">✕</button>
+    </div>
+    <div class="wahl zwei" id="ortModus">
+      <button class="knopf" data-modus="suche">Ortssuche</button>
+      <button class="knopf hell" data-modus="karte">Auf der Karte</button>
+    </div>
+    <div id="ortSuche">
+      <input type="search" id="ortSuchfeld" class="feld" placeholder="z. B. Bischofsheim" autocomplete="off" enterkeyhint="search">
+      <ul class="treffer" id="ortTreffer"></ul>
+    </div>
+    <div id="ortKarte" hidden>
+      <p class="klein-text">Tippe auf die Karte, um den Punkt zu setzen.</p>
+      <div id="karte" class="karte-box"></div>
+    </div>
+    <div id="ortSpeichern" hidden>
+      <label for="ortName" class="klein-text">Name für diesen Ort</label>
+      <input type="text" id="ortName" class="feld" maxlength="30" placeholder="z. B. Kreuzberg">
+      <button class="knopf" id="ortOk">Speichern</button>
+    </div>
+  </dialog>
+
+  <div id="toast" class="toast" role="status" hidden></div>
+
+  <script type="module" src="js/app.js?v=0.1.0"></script>
+</body>
+</html>

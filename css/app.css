@@ -1,0 +1,214 @@
+:root {
+  --bg: #f4f5f2;
+  --karte: #ffffff;
+  --text: #15181a;
+  --leise: #555c60;
+  --linie: #d5d9d4;
+  --primaer: #14532d;
+  --primaer-text: #ffffff;
+  --gruen: #16a34a;
+  --gelb: #eab308;
+  --rot: #dc2626;
+  --grau: #c9cdc8;
+  --nacht: #8b9197;
+  --warn-bg: #fff7e0;
+  --warn-rand: #e0a800;
+  --hinweis-bg: #eef3f8;
+  --whatsapp: #128c3e;
+  --radius: 16px;
+  --leiste-h: 72px;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #101312;
+    --karte: #1b201e;
+    --text: #eef1ee;
+    --leise: #a8b0ab;
+    --linie: #2f3733;
+    --primaer: #22c55e;
+    --primaer-text: #06200f;
+    --grau: #3a423e;
+    --nacht: #262c29;
+    --warn-bg: #352a08;
+    --warn-rand: #b88900;
+    --hinweis-bg: #1d2731;
+    --whatsapp: #1fae54;
+    color-scheme: dark;
+  }
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 18px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  padding-bottom: calc(var(--leiste-h) + env(safe-area-inset-bottom) + 16px);
+}
+main { max-width: 640px; margin: 0 auto; padding: 0 16px; }
+h1 { font-size: 1.5rem; margin: 0 0 10px; }
+h2 { font-size: 1.2rem; margin: 28px 0 8px; }
+a { color: inherit; }
+button { font: inherit; }
+
+/* ---------- Kopf mit Orten ---------- */
+.kopf {
+  position: sticky; top: 0; z-index: 5;
+  background: var(--primaer); color: var(--primaer-text);
+  padding: calc(env(safe-area-inset-top) + 12px) 16px 12px;
+}
+.kopf h1 { max-width: 640px; margin: 0 auto 10px; }
+.orte {
+  display: flex; gap: 8px; overflow-x: auto; max-width: 640px; margin: 0 auto;
+  scrollbar-width: none; -webkit-overflow-scrolling: touch;
+}
+.orte::-webkit-scrollbar { display: none; }
+.ort-chip {
+  flex: 0 0 auto; min-height: 52px; padding: 0 18px;
+  border-radius: 26px; border: 2px solid currentColor;
+  background: transparent; color: inherit; font-weight: 600; white-space: nowrap;
+}
+.ort-chip[aria-selected="true"] { background: var(--primaer-text); color: var(--primaer); border-color: var(--primaer-text); }
+
+/* ---------- Knöpfe ---------- */
+.knopf {
+  display: block; width: 100%; min-height: 60px; margin: 10px 0;
+  border: 0; border-radius: var(--radius);
+  background: var(--primaer); color: var(--primaer-text);
+  font-size: 1.1rem; font-weight: 700; cursor: pointer;
+}
+.knopf.hell { background: var(--karte); color: var(--text); border: 2px solid var(--linie); }
+.knopf.klein { min-height: 52px; width: auto; padding: 0 20px; display: inline-block; }
+.knopf.whatsapp { background: var(--whatsapp); color: #fff; margin-top: 18px; }
+.knopf:active { transform: scale(0.98); }
+.wahl { display: grid; gap: 8px; }
+.wahl .knopf { margin: 0; background: var(--karte); color: var(--text); border: 2px solid var(--linie); }
+.wahl .knopf.aktiv { background: var(--primaer); color: var(--primaer-text); border-color: var(--primaer); }
+.wahl.zwei { grid-template-columns: 1fr 1fr; margin-bottom: 12px; }
+
+/* ---------- Karten, Status ---------- */
+.karte { background: var(--karte); border-radius: var(--radius); padding: 16px; margin: 16px 0; border: 1px solid var(--linie); }
+.hinweis-install { border: 2px solid var(--warn-rand); background: var(--warn-bg); }
+.hinweis-install p { margin: 6px 0 4px; }
+.status { margin: 16px 0 0; color: var(--leise); }
+.status:empty { display: none; }
+.status .knopf { margin-top: 12px; }
+.klein-text { font-size: 0.95rem; color: var(--leise); margin: 6px 0; }
+.ehrlich { margin-top: 20px; }
+.quelle { font-size: 0.95rem; margin: 20px 0 8px; }
+
+/* ---------- Ampeln ---------- */
+.fenster-titel { font-weight: 700; margin: 18px 0 10px; font-size: 1.1rem; }
+.ampeln { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.ampel {
+  background: var(--karte); border: 1px solid var(--linie); border-radius: var(--radius);
+  padding: 16px 8px; text-align: center;
+}
+.licht {
+  width: 96px; height: 96px; margin: 0 auto 10px; border-radius: 50%;
+  background: var(--grau); position: relative;
+  box-shadow: inset 0 -6px 0 rgba(0,0,0,.12);
+}
+.licht::after {
+  position: absolute; inset: 0; display: grid; place-items: center;
+  font-size: 46px; font-weight: 900; color: #fff;
+}
+.ampel[data-stufe="0"] .licht { background: var(--gruen); }
+.ampel[data-stufe="0"] .licht::after { content: "✓"; }
+.ampel[data-stufe="1"] .licht { background: var(--gelb); }
+.ampel[data-stufe="1"] .licht::after { content: "!"; color: #3a2a00; }
+.ampel[data-stufe="2"] .licht { background: var(--rot); }
+.ampel[data-stufe="2"] .licht::after { content: "✕"; }
+.rad { font-size: 1.25rem; font-weight: 800; }
+.art { font-size: 0.9rem; color: var(--leise); }
+.wort { font-weight: 700; margin-top: 6px; }
+
+.empfehlung {
+  font-size: 1.2rem; font-weight: 800; margin: 16px 0 8px;
+  padding: 14px 16px; border-radius: var(--radius); background: var(--karte); border-left: 6px solid var(--primaer);
+}
+.gruende { display: grid; gap: 8px; }
+.grund { padding: 10px 14px; border-radius: 12px; background: var(--karte); border: 1px solid var(--linie); }
+.grund .wer { font-size: 0.85rem; color: var(--leise); display: block; }
+.grund.warnung { background: var(--warn-bg); border-color: var(--warn-rand); }
+.grund.hinweis { background: var(--hinweis-bg); }
+.grund .punkt { display: inline-block; width: 12px; height: 12px; border-radius: 50%; margin-right: 6px; vertical-align: 1px; }
+.eckdaten { color: var(--leise); margin: 12px 0 0; }
+
+/* ---------- Farbbänder ---------- */
+.baender { display: grid; gap: 14px; }
+.tag {
+  background: var(--karte); border: 2px solid var(--linie); border-radius: var(--radius);
+  padding: 12px; cursor: pointer;
+}
+.tag.gewaehlt { border-color: var(--primaer); }
+.tag-kopf { display: flex; justify-content: space-between; gap: 8px; font-weight: 700; margin-bottom: 8px; flex-wrap: wrap; }
+.tag-kopf .klein-text { margin: 0; font-weight: 400; }
+.band-zeile { display: grid; grid-template-columns: 64px 1fr; align-items: center; gap: 6px; margin: 4px 0; }
+.band-zeile .name { font-size: 0.85rem; font-weight: 700; }
+.band { display: flex; height: 34px; border-radius: 8px; overflow: hidden; }
+.std { flex: 1; border: 0; padding: 0; margin: 0; min-width: 0; background: var(--grau); position: relative; cursor: pointer; }
+.std + .std { border-left: 1px solid var(--karte); }
+.std[data-stufe="0"] { background: var(--gruen); }
+.std[data-stufe="1"] { background: var(--gelb); }
+.std[data-stufe="2"] { background: var(--rot); }
+.std.dunkel { background: var(--nacht); cursor: default; }
+.std.vorbei { opacity: .3; cursor: default; }
+.std.best { box-shadow: inset 0 0 0 3px var(--text); }
+.std.wahl::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 6px; background: var(--text); }
+.uhr { display: grid; grid-template-columns: 64px 1fr; gap: 6px; font-size: 0.75rem; color: var(--leise); }
+.uhr-skala { display: flex; }
+.uhr-skala span { flex: 1; min-width: 0; text-align: left; overflow: visible; white-space: nowrap; }
+.best-text { font-size: 0.9rem; margin-top: 6px; }
+
+/* ---------- Mehr ---------- */
+.ortliste { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
+.ortliste li {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  background: var(--karte); border: 1px solid var(--linie); border-radius: 12px; padding: 6px 6px 6px 14px; font-weight: 600;
+}
+.ortliste .knopf { margin: 0; }
+
+/* ---------- Dialog ---------- */
+.dialog {
+  width: 100%; max-width: 640px; max-height: 100%; height: 100%;
+  margin: 0 auto; padding: calc(env(safe-area-inset-top) + 12px) 16px 24px;
+  border: 0; background: var(--bg); color: var(--text);
+}
+.dialog::backdrop { background: rgba(0,0,0,.5); }
+.dialog-kopf { display: flex; justify-content: space-between; align-items: center; }
+.dialog-kopf h2 { margin: 0; }
+.feld {
+  width: 100%; min-height: 56px; font-size: 18px; padding: 0 14px;
+  border-radius: 12px; border: 2px solid var(--linie); background: var(--karte); color: var(--text);
+}
+.treffer { list-style: none; padding: 0; margin: 10px 0; display: grid; gap: 8px; }
+.treffer button {
+  width: 100%; min-height: 60px; text-align: left; padding: 8px 14px; border-radius: 12px;
+  border: 1px solid var(--linie); background: var(--karte); color: var(--text);
+}
+.treffer small { display: block; color: var(--leise); }
+.karte-box { height: 55vh; border-radius: 12px; overflow: hidden; border: 1px solid var(--linie); }
+
+/* ---------- Leiste unten ---------- */
+.leiste {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 10;
+  display: flex; background: var(--karte); border-top: 1px solid var(--linie);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.tab {
+  flex: 1; min-height: var(--leiste-h); border: 0; background: none; color: var(--leise);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+  font-size: 0.95rem; font-weight: 700;
+}
+.tab span { font-size: 1.4rem; }
+.tab.aktiv { color: var(--primaer); }
+
+.toast {
+  position: fixed; left: 16px; right: 16px; bottom: calc(var(--leiste-h) + env(safe-area-inset-bottom) + 12px);
+  z-index: 20; max-width: 600px; margin: 0 auto; padding: 14px 16px; border-radius: 12px;
+  background: var(--text); color: var(--bg); font-weight: 600;
+}
