@@ -6,7 +6,7 @@ export const state = {
   daten: null,         // Wetterdaten des gewählten Ortes
   bewertung: null,     // Ampel je Stunde
   s: null,             // Schwellen (mit Voreinstellung)
-  gewaehlt: null,      // { von, bis } gewähltes Zeitfenster (Stunden-Index)
+  gewaehlt: null,      // { t, laenge } gewähltes Zeitfenster (Startzeit in ms, Stunden)
   standort: null,      // { lat, lon } aktueller Standort
   pos: null,           // { lat, lon } des gewählten Ortes
   aktuell: null,       // Ampel des angezeigten Zeitfensters

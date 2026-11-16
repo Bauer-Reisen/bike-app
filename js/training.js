@@ -245,7 +245,7 @@ function balken(laengste) {
 
 // Bester Tag dieser Woche aus der Ampel
 function besterTag(plan, woche) {
-  if (!state.daten || !state.bewertung) return el('p', { class: 'klein-text' }, 'Öffne „Heute“, dann schlägt die App den besten Tag für die lange Fahrt vor.');
+  if (!state.daten || !state.bewertung) return el('p', { class: 'klein-text' }, 'Sobald das Wetter geladen ist (Seite „Heute“), schlägt die App hier den besten Tag für die lange Fahrt vor.');
   const jetzt = jetztDE();
   const ende = plusTage(woche, 6);
   let best = null;

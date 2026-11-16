@@ -19,7 +19,10 @@
   <header class="kopf">
     <div class="kopf-zeile">
       <h1 id="titel">Heute fahren?</h1>
-      <button class="kopf-knopf" id="zuMehr" aria-label="Orte und Einstellungen">⚙︎</button>
+      <div class="kopf-knoepfe">
+        <button class="kopf-knopf" id="hilfeKnopf" aria-label="Hilfe zu dieser Seite">?</button>
+        <button class="kopf-knopf" id="zuMehr" aria-label="Orte, Einstellungen und Backup">⚙︎</button>
+      </div>
     </div>
     <div class="orte" id="orte" role="tablist" aria-label="Standort wählen"></div>
   </header>
@@ -103,6 +106,8 @@
       <h2>Über die App</h2>
       <p class="klein-text">Keine Anmeldung, keine Werbung. Wetter und Ortssuche von Open-Meteo,
         Karte © OpenStreetMap-Mitwirkende. Alles Persönliche bleibt auf deinem Gerät.</p>
+      <button class="knopf hell" id="rundgangNochmal">Rundgang nochmal ansehen</button>
+      <button class="knopf hell" id="wasIstNeu">Was ist neu?</button>
       <p class="klein-text" id="version"></p>
     </section>
   </main>

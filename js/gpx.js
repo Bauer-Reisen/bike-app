@@ -5,10 +5,13 @@
 export function leseGpx(text) {
   const punkte = [];
   // Track-Punkte; falls keine da sind, Routen-Punkte
-  let re = /<trkpt\b([^>]*?)(\/>|>([\s\S]*?)<\/trkpt>)/g;
-  if (!/<trkpt\b/.test(text)) re = /<rtept\b([^>]*?)(\/>|>([\s\S]*?)<\/rtept>)/g;
-  let m;
-  while ((m = re.exec(text))) {
+  const mitTrack = /<trkpt\b/.test(text);
+  // Jedes Teilstück (trkseg) einzeln: die Lücke dazwischen ist keine gefahrene Strecke
+  const teile = mitTrack ? text.split(/<trkseg\b/) : [text];
+  teile.forEach((teil, n) => {
+  const re = mitTrack ? /<trkpt\b([^>]*?)(\/>|>([\s\S]*?)<\/trkpt>)/g : /<rtept\b([^>]*?)(\/>|>([\s\S]*?)<\/rtept>)/g;
+  let m, erster = true;
+  while ((m = re.exec(teil))) {
     const attr = m[1];
     const lat = parseFloat(/lat\s*=\s*["']([^"']+)/.exec(attr)?.[1]);
     const lon = parseFloat(/lon\s*=\s*["']([^"']+)/.exec(attr)?.[1]);
@@ -17,8 +20,12 @@ export function leseGpx(text) {
     const ele = parseFloat(/<ele>\s*([^<]+)<\/ele>/.exec(innen)?.[1]);
     const zeit = /<time>\s*([^<]+)<\/time>/.exec(innen)?.[1];
     const t = zeit ? Date.parse(zeit.trim()) : NaN;
-    punkte.push({ lat, lon, ele: isFinite(ele) ? ele : null, t: isFinite(t) ? t : null });
+    const p = { lat, lon, ele: isFinite(ele) ? ele : null, t: isFinite(t) ? t : null };
+    if (erster && n > 0 && punkte.length) p.neu = true;
+    erster = false;
+    punkte.push(p);
   }
+  });
   const name = /<trk>[\s\S]*?<name>([^<]*)<\/name>/.exec(text)?.[1]
     || /<metadata>[\s\S]*?<name>([^<]*)<\/name>/.exec(text)?.[1] || '';
   return { name: entities(name.trim()), punkte };
@@ -120,7 +127,7 @@ export function kuerzen(punkte, meter = 300) {
   };
   const vorn = bis(punkte);
   const hinten = punkte.length - bis(punkte.slice().reverse());
-  return vorn < hinten ? punkte.slice(vorn, hinten + 1) : [];
+  return vorn < hinten ? punkte.slice(vorn, hinten) : [];
 }
 
 // Höchster Punkt (für die Ampel entlang der Strecke)

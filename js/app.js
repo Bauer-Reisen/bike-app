@@ -9,6 +9,7 @@ import {
 import { state, melde, ortName } from './zustand.js';
 import { $, esc, toast, frage, ladeLeaflet, osmLayer, dateiTeilen, heuteIso } from './ui.js';
 import { VERSION } from './version.js';
+import { beimStart, seiteGeoeffnet, erklaere, rundgang, wasIstNeu } from './hilfe.js';
 
 const CACHE_MINUTEN = 30;
 
@@ -32,39 +33,51 @@ function status(html) { $('status').innerHTML = html; }
 // ---------------- Start ----------------
 async function start() {
   $('version').textContent = 'Version ' + VERSION;
-  try { navigator.storage?.persist?.(); } catch { /* egal */ }
-
-  state.orte = (await alle('orte')).sort((a, b) => a.name.localeCompare(b.name, 'de'));
-  state.auswahl = (await kv.get('auswahl')) || 'hier';
-  if (state.auswahl !== 'hier' && !state.orte.some(o => o.id === state.auswahl)) state.auswahl = 'hier';
-  state.voreinstellung = (await kv.get('voreinstellung')) || 'normal';
-  state.standort = (await kv.get('letzterStandort')) || null;
-
-  installHinweis();
-  zeichneOrte();
-  zeichneMehr();
+  // Knöpfe zuerst – die Pannen-Hilfe muss auch gehen, wenn der Speicher klemmt
   verbindeKnoepfe();
   serviceWorker();
+  pruefeUpdate();
+  try { navigator.storage?.persist?.(); } catch { /* egal */ }
+
+  try {
+    state.orte = (await alle('orte')).sort(nachName);
+    state.auswahl = (await kv.get('auswahl')) || 'hier';
+    if (state.auswahl !== 'hier' && !state.orte.some(o => o.id === state.auswahl)) state.auswahl = 'hier';
+    state.voreinstellung = (await kv.get('voreinstellung')) || 'normal';
+    state.standort = (await kv.get('letzterStandort')) || null;
+  } catch {
+    toast('Der Speicher im Handy antwortet nicht. Starte die App bitte neu.', 6000);
+  }
+
+  installHinweis().catch(() => {});
+  zeichneOrte();
+  zeichneMehr();
   const start = new URLSearchParams(location.search).get('seite');
   if (start && SEITEN[start]) zeigeSeite(start);
   laden();
+  beimStart().catch(() => {});
+}
+
+const nachName = (a, b) => a.name.localeCompare(b.name, 'de');
+
+// Neue Version im Netz? Dann einmal neu laden (Handys heben die Seite lange auf)
+async function pruefeUpdate() {
+  if (location.hostname === 'localhost' || location.protocol === 'file:') return;
+  try {
+    const res = await fetch('version.json?t=' + Date.now(), { cache: 'no-store' });
+    const { version } = await res.json();
+    if (!version || version === VERSION) return;
+    const sperre = 'bikeapp.neuGeladenFuer';
+    try { if (sessionStorage.getItem(sperre) === version) return; sessionStorage.setItem(sperre, version); } catch { return; }
+    location.replace(location.pathname + '?v=' + version);
+  } catch { /* offline – egal */ }
 }
 
 // Offline-Speicher für die App-Dateien (Pannen-Hilfe ohne Netz).
 // Neue Versionen werden beim nächsten Öffnen mit Netz automatisch geholt.
 function serviceWorker() {
   if (!('serviceWorker' in navigator) || location.protocol === 'file:') return;
-  const hatteSchon = !!navigator.serviceWorker.controller;
-  navigator.serviceWorker.register('sw.js').then(reg => {
-    reg.addEventListener('updatefound', () => {
-      const neu = reg.installing;
-      neu?.addEventListener('statechange', () => {
-        if (neu.state === 'activated' && hatteSchon) {
-          toast('Neue Version geladen – wird beim nächsten Öffnen aktiv.');
-        }
-      });
-    });
-  }).catch(() => { /* ohne Offline-Speicher geht die App trotzdem */ });
+  navigator.serviceWorker.register('sw.js').catch(() => { /* ohne Offline-Speicher geht die App trotzdem */ });
 }
 
 async function installHinweis() {
@@ -216,8 +229,11 @@ function zeichne() {
   }));
 
   // Ausgewähltes Fenster: gewählt, sonst bestes von heute, sonst morgen
-  let fenster = state.gewaehlt;
-  if (fenster && daten.stunden[fenster.von]?.datum < jetzt.datum) fenster = null;
+  let fenster = null;
+  if (state.gewaehlt) {
+    const von = daten.stunden.findIndex(x => x.t === state.gewaehlt.t);
+    if (von >= 0 && daten.stunden[von].datum >= jetzt.datum) fenster = { von, bis: Math.min(von + state.gewaehlt.laenge, daten.stunden.length) };
+  }
   if (!fenster) fenster = beste.find(b => b.beide)?.beide || null;
   if (!fenster) {
     $('ergebnis').hidden = true;
@@ -376,7 +392,7 @@ function zeichneBaender(tage, beste, fenster, jetzt) {
     bt.className = 'best-text';
     if (b.beide) {
       const r = b.beide;
-      bt.textContent = `Bestes Fenster: ${daten.stunden[r.von].stunde}–${daten.stunden[r.bis - 1].stunde + 1} Uhr (${STUFE_FARBE[r.stufe]}${bewertungMit(r)})`;
+      bt.textContent = `Bestes Fenster: ${daten.stunden[r.von].stunde}–${daten.stunden[r.bis - 1].stunde + 1} Uhr (${bewertungMit(r, STUFE_FARBE[r.stufe])})`;
     } else {
       bt.textContent = 'Heute kein Fenster mehr bei Tageslicht.';
     }
@@ -388,18 +404,18 @@ function zeichneBaender(tage, beste, fenster, jetzt) {
 }
 
 // Mit welchem Rad ist das Fenster so gut?
-function bewertungMit(f) {
+function bewertungMit(f, farbe) {
   let e = 0, g = 0;
   for (let i = f.von; i < f.bis; i++) {
     e = Math.max(e, state.bewertung[i].emtbStufe);
     g = Math.max(g, state.bewertung[i].gravelStufe);
   }
-  if (e === g) return ' mit beiden Rädern';
-  return e < g ? ' mit dem E-MTB' : ' mit dem Gravel';
+  if (e === g) return `${farbe} für beide Räder`;
+  return `${farbe} fürs ${e < g ? 'E-MTB' : 'Gravel'}`;
 }
 
 function waehle(f) {
-  state.gewaehlt = { von: f.von, bis: f.bis };
+  state.gewaehlt = { t: state.daten.stunden[f.von].t, laenge: f.bis - f.von };
   zeichne();
   $('fensterTitel').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
@@ -471,16 +487,17 @@ export async function zeigeSeite(name, ...args) {
   $('titel').textContent = s.titel;
   $('zuMehr').hidden = name === 'mehr';
   scrollTo(0, 0);
+  if (!s.modul && name !== 'heute') seiteGeoeffnet(name);
   if (s.modul) {
     try {
       const m = await import(s.modul);
       if (aktuelleSeite === name) await m.zeige($('seite-' + name), ...args);
+      if (aktuelleSeite === name) seiteGeoeffnet(name);
     } catch (e) {
       $('seite-' + name).innerHTML = `<div class="karte">Dieser Bereich konnte nicht geladen werden. Bist du offline?<br><small>${esc(e.message)}</small></div>`;
     }
   }
 }
-export const seiteJetzt = () => aktuelleSeite;
 
 // ---------------- Ort-Dialog ----------------
 let neuerOrt = null;
@@ -562,13 +579,13 @@ async function ortSpeichern() {
   const o = { id: neueId(), name, lat: neuerOrt.lat, lon: neuerOrt.lon };
   await speichere('orte', o);
   state.orte.push(o);
-  state.orte.sort((a, b) => a.name.localeCompare(b.name, 'de'));
+  state.orte.sort(nachName);
   state.auswahl = o.id;
   kv.set('auswahl', o.id);
   state.gewaehlt = null;
   $('ortDialog').close();
   zeichneOrte(); zeichneMehr();
-  zeigeSeite('heute');
+  if (aktuelleSeite === 'mehr') zeigeSeite('heute');
   laden();
   toast(`„${name}“ gespeichert.`);
 }
@@ -598,7 +615,7 @@ async function backupDatei(ev) {
   try {
     const json = JSON.parse(await f.text());
     const n = await backupLaden(json);
-    state.orte = (await alle('orte')).sort((a, b) => a.name.localeCompare(b.name, 'de'));
+    state.orte = (await alle('orte')).sort(nachName);
     state.voreinstellung = (await kv.get('voreinstellung')) || 'normal';
     zeichneOrte(); zeichneMehr();
     if (state.daten) berechne();
@@ -614,6 +631,9 @@ function verbindeKnoepfe() {
   for (const t of document.querySelectorAll('.tab')) t.onclick = () => zeigeSeite(t.dataset.seite);
   $('zuMehr').onclick = () => { zeigeSeite('mehr'); zeigeBackupStand(); };
   $('panneHeute').onclick = () => zeigeSeite('technik', 'panne');
+  $('hilfeKnopf').onclick = () => erklaere(aktuelleSeite);
+  $('rundgangNochmal').onclick = () => rundgang();
+  $('wasIstNeu').onclick = () => wasIstNeu();
   $('installOk').onclick = () => { $('installHinweis').hidden = true; kv.set('installHinweisGesehen', true); };
   $('teilen').onclick = teilen;
   for (const b of $('voreinstellung').querySelectorAll('button')) {
@@ -636,7 +656,9 @@ function verbindeKnoepfe() {
   $('backupDatei').onchange = backupDatei;
   // Beim Zurückkommen in die App: Daten auffrischen, wenn alt
   document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'visible' && state.daten && Date.now() - state.daten.geholt > CACHE_MINUTEN * 60000) laden();
+    if (document.visibilityState !== 'visible') return;
+    pruefeUpdate();
+    if (state.daten && Date.now() - state.daten.geholt > CACHE_MINUTEN * 60000) laden();
   });
 }
 

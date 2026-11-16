@@ -3,11 +3,11 @@
 // nur wenn kein Netz da ist oder es zu lange dauert, die gespeicherte Kopie nehmen.
 // Wetter, Ortssuche und Kartenkacheln werden NICHT gespeichert.
 
-const VERSION = '0.2.0';
+const VERSION = '0.3.0';
 const CACHE = 'bike-app-' + VERSION;
 const DATEIEN = [
   './', 'index.html', 'manifest.webmanifest', 'css/app.css',
-  'js/app.js', 'js/ui.js', 'js/zustand.js', 'js/version.js', 'js/db.js', 'js/wetter.js',
+  'js/app.js', 'js/ui.js', 'js/hilfe.js', 'js/hilfe-daten.js', 'js/zustand.js', 'js/version.js', 'js/db.js', 'js/wetter.js',
   'js/schwellen.js', 'js/ampel.js', 'js/gpx.js',
   'js/technik.js', 'js/technik-daten.js', 'js/rad-grafik.js',
   'js/fahrten.js', 'js/routen.js', 'js/training.js',
@@ -35,15 +35,17 @@ self.addEventListener('fetch', ev => {
   if (req.method !== 'GET') return;
   const url = new URL(req.url);
   if (url.origin !== location.origin) return; // fremde Dienste nicht anfassen
+  if (url.pathname.endsWith('/version.json')) return; // Update-Prüfung immer frisch
 
   ev.respondWith((async () => {
     const cache = await caches.open(CACHE);
-    const netz = fetch(req).then(res => {
-      if (res.ok && res.type === 'basic') cache.put(req, res.clone());
+    const netz = fetch(req).then(async res => {
+      if (res.ok && res.type === 'basic') await cache.put(req, res.clone());
       return res;
     });
-    // Höchstens 4 Sekunden aufs Netz warten (schwaches Netz im Wald)
-    const zeit = new Promise(resolve => setTimeout(resolve, 4000, null));
+    ev.waitUntil(netz.catch(() => {})); // Speichern auch fertig machen, wenn die Kopie schon gezeigt wird
+    // Kurz aufs Netz warten (schwaches Netz im Wald): Seite 3 s, alle anderen Dateien 1,5 s
+    const zeit = new Promise(resolve => setTimeout(resolve, req.mode === 'navigate' ? 3000 : 1500, null));
     try {
       const res = await Promise.race([netz, zeit]);
       if (res) return res;

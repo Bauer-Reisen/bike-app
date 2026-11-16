@@ -54,7 +54,7 @@ async function zeichne() {
   }
   const liste = el('div', { class: 'fahrt-liste' });
   for (const f of fahrten) {
-    const quelle = { gpx: '📄', hand: '✍︎', aufzeichnung: '⏺' }[f.quelle] || '';
+    const quelle = { gpx: '📄', hand: '✍︎', aufzeichnung: '⏺', route: '🗺' }[f.quelle] || '';
     liste.append(el('button', { class: 'fahrt', onclick: () => formular(f) },
       el('span', { class: 'fahrt-kopf' }, el('b', {}, datumLang(f.datum)), el('span', { class: 'rad-tag ' + f.rad }, RAD_NAME[f.rad])),
       el('span', {}, `${zahl(f.km, 1)} km · ${zahl(f.hm || 0)} Hm${f.minuten ? ' · ' + dauer(f.minuten) : ''} ${quelle}`),
@@ -151,6 +151,7 @@ export function formular(f = null, vorgabe = {}) {
 
   inhalt.append(
     d.quelle === 'gpx' && neu ? el('p', { class: 'klein-text' }, 'Aus der GPX-Datei gelesen – bitte prüfen und das Rad wählen.') : null,
+    d.quelle === 'route' && neu ? el('p', { class: 'klein-text' }, 'Werte von der Route übernommen – passe sie an, wenn du abgekürzt oder verlängert hast.') : null,
     d.quelle === 'aufzeichnung' && neu ? el('p', { class: 'klein-text' }, 'Aus der Aufzeichnung – bitte prüfen. Höhenmeter vom Handy-GPS sind oft ungenau.') : null,
     el('p', { class: 'feld-label' }, 'Rad'), radWahl,
     feld('Datum', datum),
@@ -211,8 +212,9 @@ async function backupErinnerung() {
 
 // ---------------- GPX-Import ----------------
 function gpxImport() {
-  const input = el('input', { type: 'file', accept: '.gpx,application/gpx+xml,application/xml,text/xml', hidden: true });
+  const input = el('input', { type: 'file', hidden: true });
   document.body.append(input);
+  input.addEventListener('cancel', () => input.remove());
   input.onchange = async () => {
     const datei = input.files[0];
     input.remove();
@@ -248,7 +250,7 @@ async function spurZeigen(f) {
 }
 
 // ---------------- Aufzeichnung (Experiment) ----------------
-const auf = { aktiv: false, punkte: [], watch: null, lock: null, start: 0, timer: null, map: null, linie: null, pause: false };
+const auf = { aktiv: false, punkte: [], watch: null, lock: null, start: 0, timer: null, map: null, linie: null, pause: false, pauseSumme: 0, pauseAb: 0 };
 
 function aufzeichnungStart() {
   const { inhalt, schliessen } = dialog('Fahrt aufzeichnen');
@@ -296,7 +298,7 @@ function beobachten() {
 
 async function aufzeichnen(punkte, start = Date.now()) {
   if (!navigator.geolocation) { toast('Dein Gerät kann keinen Standort bestimmen.'); return; }
-  Object.assign(auf, { aktiv: true, punkte, start, pause: false, pauseVorbei: punkte.length > 0 });
+  Object.assign(auf, { aktiv: true, punkte, start, pause: false, pauseVorbei: punkte.length > 0, pauseSumme: 0, pauseAb: 0 });
   const { inhalt, dialog: dlg, schliessen } = dialog('Aufzeichnung läuft', { onClose: () => { if (auf.aktiv) stopp(false); } });
   const zeit = el('div', { class: 'auf-gross' }, '0:00:00');
   const dist = el('div', { class: 'auf-gross' }, '0,00 km');
@@ -317,7 +319,8 @@ async function aufzeichnen(punkte, start = Date.now()) {
   auf.aufraeumen = () => document.removeEventListener('visibilitychange', sichtbar);
 
   auf.timer = setInterval(() => {
-    const s = Math.floor((Date.now() - auf.start) / 1000);
+    if (auf.pause) return; // Uhr steht während der Pause
+    const s = Math.floor((Date.now() - auf.start - auf.pauseSumme) / 1000);
     zeit.textContent = `${Math.floor(s / 3600)}:${String(Math.floor(s / 60) % 60).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
     let m = 0;
     for (let i = 1; i < auf.punkte.length; i++) if (!auf.punkte[i].neu) m += abstand(auf.punkte[i - 1], auf.punkte[i]);
@@ -326,8 +329,8 @@ async function aufzeichnen(punkte, start = Date.now()) {
 
   pauseKnopf.onclick = () => {
     auf.pause = !auf.pause;
-    if (auf.pause) { navigator.geolocation.clearWatch(auf.watch); pauseKnopf.textContent = 'Weiter'; sichern(); }
-    else { auf.pauseVorbei = true; beobachten(); pauseKnopf.textContent = 'Pause'; }
+    if (auf.pause) { auf.pauseAb = Date.now(); navigator.geolocation.clearWatch(auf.watch); pauseKnopf.textContent = 'Weiter'; sichern(); }
+    else { auf.pauseSumme += Date.now() - auf.pauseAb; auf.pauseVorbei = true; beobachten(); pauseKnopf.textContent = 'Pause'; }
   };
   endeKnopf.onclick = async () => {
     if (!await frage('Aufzeichnung beenden und speichern?', 'Beenden') || !auf.aktiv) return;

@@ -1,6 +1,6 @@
 // Routen: kuratierte Touren (routen/routen.json) + eigene GPX-Routen (nur im Gerät)
 import { kv, alle, speichere, loesche, neueId } from './db.js';
-import { leseGpx, auswerten, vereinfache, packe, entpacke, abstand, hoechsterPunkt, schreibeGpx } from './gpx.js';
+import { leseGpx, auswerten, vereinfache, packe, entpacke, abstand, hoechsterPunkt, schreibeGpx, kuerzen } from './gpx.js';
 import { el, toast, dialog, frage, zahl, RAD_NAME, ladeLeaflet, osmLayer, dateiTeilen } from './ui.js';
 import { state, ortName } from './zustand.js';
 import { holeWetter } from './wetter.js';
@@ -8,6 +8,7 @@ import { bewerteStunden, fasseZusammen } from './ampel.js';
 
 const UNTERGRUND = ['Asphalt', 'Schotter', 'Waldweg', 'Trail'];
 const STUFE_FARBE = ['grün', 'gelb', 'rot'];
+const STUFE_EMOJI = ['🟢', '🟡', '🔴'];
 let box = null;
 let filter = 'alle';
 let kuratiert = null;
@@ -52,6 +53,18 @@ async function zeichne() {
   passend.sort((a, b) => (nass ? (b.nass ? 1 : 0) - (a.nass ? 1 : 0) : 0) || (a.entfernung ?? 0) - (b.entfernung ?? 0));
 
   box.innerHTML = '';
+  if (!routen.length) {
+    karte?.remove(); karte = null;
+    box.append(
+      el('div', { class: 'karte oben-abstand' },
+        el('b', {}, 'Noch keine Touren'),
+        el('p', { class: 'klein-text' }, 'Die ausgesuchten Touren aus der Region kommen bald dazu. Bis dahin kannst du eine eigene GPX-Datei hinzufügen oder bei Komoot stöbern.')),
+      el('button', { class: 'knopf', onclick: eigeneHinzufuegen }, '＋ Eigene GPX-Route hinzufügen'),
+      komootKnopf(),
+      el('p', { class: 'klein-text' }, 'Eigene Routen bleiben nur auf diesem Handy (und in deinem Backup).'),
+    );
+    return;
+  }
   const filterBox = el('div', { class: 'chips oben-abstand' });
   for (const [w, t] of [['alle', 'Alle'], ['emtb', 'E-MTB'], ['gravel', 'Gravel']]) {
     filterBox.append(el('button', { class: 'chip' + (filter === w ? ' aktiv' : ''), onclick: async () => { filter = w; await kv.set('routenFilter', w); zeichne(); } }, t));
@@ -98,7 +111,7 @@ function komootKnopf() {
   const name = state.auswahl === 'hier' ? 'Umgebung' : ortName();
   const sport = filter === 'gravel' ? 'mtb_easy' : 'mtb';
   const url = pos
-    ? `https://www.komoot.com/de-de/discover/${encodeURIComponent(name)}/@${pos.lat.toFixed(4)},${pos.lon.toFixed(4)}/tours?sport=${sport}&map=true`
+    ? `https://www.komoot.com/de-de/discover/${encodeURIComponent(name)}/@${pos.lat.toFixed(2)},${pos.lon.toFixed(2)}/tours?sport=${sport}&map=true`
     : 'https://www.komoot.com/de-de/discover';
   return el('a', { class: 'knopf hell links-knopf', href: url, target: '_blank', rel: 'noopener' },
     `Touren bei Komoot suchen${pos ? ' rund um ' + (state.auswahl === 'hier' ? 'deinen Standort' : name) : ''} ↗`);
@@ -108,6 +121,7 @@ let karte = null;
 async function karteZeichnen(k, routen) {
   try {
     const L = await ladeLeaflet();
+    karte?.remove(); // alte Karte wegräumen (stoppt auch die Standortsuche)
     karte = L.map(k, { zoomControl: true });
     osmLayer(L).addTo(karte);
     const grenzen = [];
@@ -146,13 +160,16 @@ function standortKnopf(L, map) {
           navigator.geolocation.clearWatch(watch); watch = null; punkt?.remove(); punkt = null; b.classList.remove('an'); return;
         }
         b.classList.add('an');
+        const stopp = () => { if (watch != null) navigator.geolocation.clearWatch(watch); watch = null; b.classList.remove('an'); };
         watch = navigator.geolocation.watchPosition(p => {
+          // Karte nicht mehr sichtbar (andere Seite, Fenster zu)? Dann GPS aus – spart Akku
+          if (!map.getContainer().isConnected || map.getContainer().offsetParent === null) { stopp(); return; }
           const ll = [p.coords.latitude, p.coords.longitude];
           if (!punkt) { punkt = L.circleMarker(ll, { radius: 9, color: '#fff', weight: 3, fillColor: '#2563eb', fillOpacity: 1 }).addTo(map); map.setView(ll, Math.max(map.getZoom(), 14)); }
           else punkt.setLatLng(ll);
         }, () => { toast('Standort nicht verfügbar.'); b.classList.remove('an'); watch = null; },
         { enableHighAccuracy: true, maximumAge: 5000, timeout: 20000 });
-        map.on('unload', () => { if (watch != null) navigator.geolocation.clearWatch(watch); });
+        map.on('unload', stopp);
       };
       return b;
     },
@@ -162,7 +179,8 @@ function standortKnopf(L, map) {
 
 // ---------------- Detail ----------------
 async function detail(r) {
-  const { inhalt, schliessen } = dialog(r.name);
+  let map = null, ampel = null;
+  const { inhalt, schliessen } = dialog(r.name, { onClose: () => map?.remove() });
   const k = el('div', { class: 'karte-box' });
   const ampelBox = el('div', { class: 'karte' }, el('b', {}, 'Ampel für diese Tour'), el('p', { class: 'klein-text' }, 'Lade Wetter entlang der Strecke …'));
   inhalt.append(
@@ -177,7 +195,9 @@ async function detail(r) {
     k,
     ampelBox,
     ...(r.hinweise || []).map(h => el('div', { class: 'grund hinweis' }, 'ℹ︎ ' + h)),
-    el('button', { class: 'knopf', onclick: () => gpxWeitergeben(r) }, 'GPX an andere App geben (Komoot, Radcomputer …)'),
+    el('button', { class: 'knopf', onclick: () => gefahren(r, schliessen) }, '✓ Diese Route gefahren'),
+    el('button', { class: 'knopf whatsapp', onclick: () => routeTeilen(r, ampel) }, 'Per WhatsApp teilen – wer fährt mit?'),
+    el('button', { class: 'knopf hell', onclick: () => gpxWeitergeben(r) }, 'GPX an andere App geben (Komoot, Radcomputer …)'),
     el('a', { class: 'knopf hell links-knopf', target: '_blank', rel: 'noopener', href: `https://www.google.com/maps/dir/?api=1&destination=${r.start.lat},${r.start.lon}` }, 'Anfahrt zum Start ↗'),
     r.eigen ? el('button', {
       class: 'knopf hell loeschen', onclick: async () => {
@@ -188,7 +208,8 @@ async function detail(r) {
   );
   try {
     const L = await ladeLeaflet();
-    const map = L.map(k);
+    if (!k.isConnected) return; // Fenster schon wieder zu
+    map = L.map(k);
     osmLayer(L).addTo(map);
     const pts = entpacke(r.spur).map(p => [p.lat, p.lon]);
     const linie = L.polyline(pts, { color: '#b45309', weight: 5 }).addTo(map);
@@ -197,14 +218,40 @@ async function detail(r) {
     standortKnopf(L, map);
     setTimeout(() => map.invalidateSize(), 50);
   } catch (e) { k.textContent = e.message; }
-  routenAmpel(r, ampelBox);
+  ampel = await routenAmpel(r, ampelBox);
+}
+
+// Fahrt ins Fahrtenbuch übernehmen
+async function gefahren(r, schliessen) {
+  schliessen();
+  try {
+    const { formular } = await import('./fahrten.js');
+    formular(null, { quelle: 'route', km: r.km, hm: r.hm, notiz: r.name, spur: r.spur, ...(r.rad.length === 1 ? { rad: r.rad[0] } : {}) });
+  } catch { toast('Das Fahrtenbuch konnte nicht geladen werden (offline?).'); }
+}
+
+// Tour per WhatsApp: Eckdaten, Ampel, Startpunkt
+function routeTeilen(r, ampel) {
+  // Bei eigenen Routen nicht den allerersten Punkt verraten (oft die Haustür)
+  const start = r.kuratiert ? r.start : kuerzen(entpacke(r.spur), 300)[0];
+  const zeilen = [
+    `🚲 Wer fährt mit? ${r.name}`,
+    `${zahl(r.km, 1)} km · ${zahl(r.hm)} Hm · ${r.untergrund.join(', ')} · ${r.rad.map(x => RAD_NAME[x]).join(' / ')}`,
+  ];
+  if (ampel && state.aktuell) {
+    zeilen.push(`Ampel ${state.aktuell.titel}: ` + r.rad.map(x => `${RAD_NAME[x]} ${STUFE_EMOJI[ampel[x].stufe]} ${STUFE_FARBE[ampel[x].stufe]}`).join(' · '));
+  }
+  zeilen.push(r.nass ? '💧 geht auch bei Nässe' : '🚫 nicht bei Nässe');
+  if (start) zeilen.push(`Start${r.start?.name ? ' ' + r.start.name : ''}: https://maps.google.com/?q=${start.lat.toFixed(4)},${start.lon.toFixed(4)}`);
+  zeilen.push(location.origin + location.pathname);
+  window.open('https://wa.me/?text=' + encodeURIComponent(zeilen.join('\n')), '_blank');
 }
 
 // Wetter an Start, höchstem und entferntestem Punkt; schlechteste Ampel zählt
 async function routenAmpel(r, ziel) {
   const f = state.aktuell?.fenster;
   if (!f || !state.daten || !state.s) {
-    ziel.lastChild.textContent = 'Öffne zuerst „Heute“, damit ein Zeitfenster gewählt ist.';
+    ziel.lastChild.textContent = 'Noch kein Wetter geladen (offline?). Tippe unten auf „Heute“ und dann auf „Nochmal versuchen“.';
     return;
   }
   const pts = entpacke(r.spur);
@@ -241,6 +288,7 @@ async function routenAmpel(r, ziel) {
       for (const g of e.gruende.values()) ziel.append(el('div', { class: 'klein-text' }, `• ${g.text} (${g.wo})`));
     }
     if (!r.nass && trailsNass()) ziel.append(el('div', { class: 'grund warnung' }, '⚠︎ Diese Tour ist bei Nässe nicht geeignet, und die Trails sind gerade nass.'));
+    return ergebnisse;
   } catch {
     ziel.lastChild.textContent = 'Wetter für die Strecke nicht verfügbar (offline?).';
   }
@@ -258,8 +306,9 @@ async function gpxWeitergeben(r) {
 
 // ---------------- Eigene Route ----------------
 function eigeneHinzufuegen() {
-  const input = el('input', { type: 'file', accept: '.gpx,application/gpx+xml,application/xml,text/xml', hidden: true });
+  const input = el('input', { type: 'file', hidden: true });
   document.body.append(input);
+  input.addEventListener('cancel', () => input.remove());
   input.onchange = async () => {
     const datei = input.files[0];
     input.remove();

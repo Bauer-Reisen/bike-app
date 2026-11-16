@@ -119,12 +119,33 @@ export function osmLayer(L) {
   });
 }
 
+function teilenMitTipp(file, name) {
+  return new Promise(resolve => {
+    let ok = false;
+    const { inhalt, schliessen } = dialog('Datei ist fertig', { onClose: () => resolve(ok) });
+    inhalt.append(
+      el('p', {}, name),
+      el('button', {
+        class: 'knopf', onclick: async () => {
+          try { await navigator.share({ files: [file], title: name }); ok = true; } catch { /* abgebrochen */ }
+          schliessen();
+        },
+      }, 'Jetzt teilen / sichern'),
+      el('button', { class: 'knopf hell', onclick: schliessen }, 'Abbrechen'),
+    );
+  });
+}
+
 // Datei teilen (iPhone: Teilen-Menü), sonst herunterladen
 export async function dateiTeilen(text, name, typ) {
   const file = new File([text], name, { type: typ });
   if (navigator.canShare?.({ files: [file] })) {
     try { await navigator.share({ files: [file], title: name }); return true; }
-    catch (e) { if (e.name === 'AbortError') return false; }
+    catch (e) {
+      if (e.name === 'AbortError') return false;
+      // Das iPhone verlangt manchmal einen frischen Tipp zum Teilen
+      if (e.name === 'NotAllowedError') return teilenMitTipp(file, name);
+    }
   }
   const a = el('a', { href: URL.createObjectURL(file), download: name });
   document.body.append(a);

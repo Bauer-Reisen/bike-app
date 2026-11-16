@@ -21,15 +21,26 @@ function open() {
         }
       }
     };
-    req.onsuccess = () => resolve(req.result);
-    req.onerror = () => reject(req.error);
+    req.onsuccess = () => {
+      const db = req.result;
+      // iPhone: nach langer Zeit im Hintergrund kann die Verbindung weg sein – dann neu öffnen
+      db.onclose = () => { dbPromise = null; };
+      db.onversionchange = () => { db.close(); dbPromise = null; };
+      resolve(db);
+    };
+    req.onerror = () => { dbPromise = null; reject(req.error); };
   });
   return dbPromise;
 }
 
-function run(store, mode, fn) {
+function run(store, mode, fn, nochmal = true) {
   return open().then(db => new Promise((resolve, reject) => {
-    const tx = db.transaction(store, mode);
+    let tx;
+    try { tx = db.transaction(store, mode); } catch (e) {
+      // Verbindung verloren: einmal neu öffnen und nochmal versuchen
+      if (nochmal && e.name === 'InvalidStateError') { dbPromise = null; resolve(run(store, mode, fn, false)); return; }
+      reject(e); return;
+    }
     const os = tx.objectStore(store);
     let result;
     const req = fn(os);

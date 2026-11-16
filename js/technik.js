@@ -2,7 +2,7 @@
 import { TEILE, ANLEITUNGEN, PANNEN } from './technik-daten.js';
 import { radSvg } from './rad-grafik.js';
 import { kv } from './db.js';
-import { el, toast } from './ui.js';
+import { el, toast, dialog } from './ui.js';
 
 let box = null;
 let rad = 'emtb';
@@ -78,7 +78,7 @@ function anleitung(id, nr, zurueck) {
   const a = ANLEITUNGEN[id];
   const n = a.schritte.length;
   box.innerHTML = '';
-  box.append(el('button', { class: 'knopf klein hell', onclick: () => { zurueck(); oben(); } }, '‹ Zurück zur Übersicht'));
+  box.append(el('button', { class: 'knopf klein hell', onclick: () => { zurueck(); oben(); } }, '‹ Zurück'));
   box.append(el('h2', {}, a.titel));
 
   if (nr === 0) {
@@ -140,8 +140,13 @@ function standortSenden() {
   navigator.geolocation.getCurrentPosition(p => {
     const lat = p.coords.latitude.toFixed(5), lon = p.coords.longitude.toFixed(5);
     const text = `🚲 Ich habe eine Panne und brauche Hilfe.\nMein Standort: https://maps.google.com/?q=${lat},${lon}`;
-    toast('Standort gefunden.');
-    window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
+    // Das iPhone öffnet WhatsApp nur nach einem eigenen Tipp – darum ein Knopf
+    const { inhalt, schliessen } = dialog('Standort gefunden');
+    inhalt.append(
+      el('p', {}, 'Tippe auf den Knopf. In WhatsApp wählst du selbst, an wen die Nachricht geht.'),
+      el('a', { class: 'knopf whatsapp links-knopf', href: 'https://wa.me/?text=' + encodeURIComponent(text), target: '_blank', rel: 'noopener', onclick: () => setTimeout(schliessen, 500) }, 'WhatsApp öffnen'),
+      el('button', { class: 'knopf hell', onclick: schliessen }, 'Abbrechen'),
+    );
   }, () => toast('Standort nicht verfügbar. Ist die Ortung erlaubt?', 5000),
   { enableHighAccuracy: true, timeout: 20000, maximumAge: 60000 });
 }
