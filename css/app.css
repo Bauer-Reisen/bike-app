@@ -373,3 +373,15 @@ input[type="date"].feld { appearance: none; -webkit-appearance: none; }
 /* App weitergeben (QR-Code wie Film-App) */
 .weitergeben { text-align: center; }
 .weitergeben .qr { display: block; margin: 6px auto 8px; width: 200px; height: 200px; border-radius: 8px; background: #fff; padding: 6px; }
+
+/* ===== Fester Rahmen (gegen hüpfende Leiste auf dem iPhone) =====
+   Die Seite selbst scrollt nicht mehr. Nur der Bereich #scroller zwischen Kopf und Leiste scrollt,
+   die Leiste steht im normalen Seitenaufbau und kann sich deshalb nicht bewegen. */
+html, body { height: 100%; overflow: hidden; overscroll-behavior: none; }
+body { min-height: 0; display: flex; flex-direction: column; }
+.scroller { flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; overscroll-behavior-y: contain; -webkit-overflow-scrolling: touch; }
+body { padding-bottom: 0; }
+.kopf { position: relative; flex: none; }
+.leiste { position: relative; flex: none; }
+main { padding-bottom: 20px; }
+.schritt-nav { bottom: 8px; }

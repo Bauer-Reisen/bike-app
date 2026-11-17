@@ -14,7 +14,7 @@ export async function zeige(container, modus) {
   else uebersicht();
 }
 
-function oben() { scrollTo(0, 0); }
+function oben() { document.getElementById('scroller').scrollTo(0, 0); }
 
 // ---------------- Übersicht ----------------
 function uebersicht(teilId) {

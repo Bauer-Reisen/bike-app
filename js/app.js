@@ -486,7 +486,7 @@ export async function zeigeSeite(name, ...args) {
   $('orte').hidden = !s.orte;
   $('titel').textContent = s.titel;
   $('zuMehr').hidden = name === 'mehr';
-  scrollTo(0, 0);
+  $('scroller').scrollTo(0, 0);
   if (!s.modul && name !== 'heute') seiteGeoeffnet(name);
   if (s.modul) {
     try {
