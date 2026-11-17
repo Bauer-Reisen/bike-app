@@ -369,3 +369,7 @@ input[type="date"].feld { appearance: none; -webkit-appearance: none; }
 .tour-punkte span.an { background: var(--primaer); }
 .neu-liste { padding-left: 1.2em; line-height: 1.5; }
 .neu-liste li { margin: 8px 0; }
+
+/* App weitergeben (QR-Code wie Film-App) */
+.weitergeben { text-align: center; }
+.weitergeben .qr { display: block; margin: 6px auto 8px; width: 200px; height: 200px; border-radius: 8px; background: #fff; padding: 6px; }

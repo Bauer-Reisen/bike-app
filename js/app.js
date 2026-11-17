@@ -634,6 +634,16 @@ function verbindeKnoepfe() {
   $('hilfeKnopf').onclick = () => erklaere(aktuelleSeite);
   $('rundgangNochmal').onclick = () => rundgang();
   $('wasIstNeu').onclick = () => wasIstNeu();
+  $('appTeilen').onclick = async () => {
+    const url = 'https://bauer-reisen.github.io/bike-app/';
+    try {
+      if (navigator.share) { await navigator.share({ title: 'Bike-App', text: 'Bike-App: Heute fahren? Routen, Fahrtenbuch, Training', url }); return; }
+      await navigator.clipboard.writeText(url);
+      toast('Link kopiert.');
+    } catch (err) {
+      if (err?.name !== 'AbortError') toast('Link: ' + url, 6000);
+    }
+  };
   $('installOk').onclick = () => { $('installHinweis').hidden = true; kv.set('installHinweisGesehen', true); };
   $('teilen').onclick = teilen;
   for (const b of $('voreinstellung').querySelectorAll('button')) {

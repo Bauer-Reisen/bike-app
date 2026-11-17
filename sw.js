@@ -3,7 +3,7 @@
 // nur wenn kein Netz da ist oder es zu lange dauert, die gespeicherte Kopie nehmen.
 // Wetter, Ortssuche und Kartenkacheln werden NICHT gespeichert.
 
-const VERSION = '0.3.0';
+const VERSION = '0.3.1';
 const CACHE = 'bike-app-' + VERSION;
 const DATEIEN = [
   './', 'index.html', 'manifest.webmanifest', 'css/app.css',
@@ -12,7 +12,7 @@ const DATEIEN = [
   'js/technik.js', 'js/technik-daten.js', 'js/rad-grafik.js',
   'js/fahrten.js', 'js/routen.js', 'js/training.js',
   'routen/routen.json',
-  'icons/icon-192.png', 'icons/apple-touch-icon.png',
+  'icons/icon-192.png', 'icons/apple-touch-icon.png', 'icons/qr.svg',
   'vendor/leaflet/leaflet.js', 'vendor/leaflet/leaflet.css',
   'vendor/leaflet/images/marker-icon.png', 'vendor/leaflet/images/marker-icon-2x.png',
   'vendor/leaflet/images/marker-shadow.png',

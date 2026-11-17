@@ -37,6 +37,11 @@ export const KARTEN = [
 // Neueste zuerst. Nur Dinge, die man sieht und kennen sollte – keine Reparaturen.
 export const NEUES = [
   {
+    v: '0.3.1', titel: 'App weitergeben',
+    punkte: ['Unter <b>Orte & Einstellungen</b> gibt es jetzt einen <b>QR-Code</b>: Freunde scannen ihn mit der Kamera und haben die App.'],
+    rundgang: 'klein',
+  },
+  {
     v: '0.3.0', titel: 'Neu in der App',
     punkte: [
       'Bei jeder Route: <b>Per WhatsApp teilen</b> (mit Ampel) und <b>Diese Route gefahren</b> – trägt die Tour mit einem Tipp ins Fahrtenbuch ein.',
