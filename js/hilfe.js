@@ -36,7 +36,7 @@ function karte(titel, inhaltFn, knoepfe) {
   return new Promise(resolve => {
     let wert = null;
     const { inhalt, schliessen } = dialog(titel, { onClose: () => resolve(wert) });
-    inhaltFn(inhalt);
+    inhaltFn(inhalt, (w) => { wert = w; schliessen(); });
     for (const k of knoepfe) {
       inhalt.append(el('button', { class: 'knopf' + (k.hell ? ' hell' : ''), onclick: () => { wert = k.wert; schliessen(); } }, k.text));
     }
@@ -44,21 +44,27 @@ function karte(titel, inhaltFn, knoepfe) {
 }
 
 export async function rundgang() {
-  for (let i = 0; i < KARTEN.length; i++) {
+  let i = 0;
+  while (i < KARTEN.length) {
     const k = KARTEN[i];
     const letzte = i === KARTEN.length - 1;
-    const w = await karte(i === 0 ? 'Willkommen!' : k.titel, inhalt => {
+    const w = await karte(i === 0 ? 'Willkommen!' : k.titel, (inhalt, waehle) => {
       inhalt.append(el('div', { class: 'tour' },
         el('div', { class: 'tour-icon', 'aria-hidden': 'true' }, k.icon),
         i === 0 ? el('h3', {}, k.titel) : null,
         el('p', { html: k.text }),
+        // Punkte antippen = zu diesem Schritt springen
         el('p', { class: 'tour-punkte', 'aria-label': `Schritt ${i + 1} von ${KARTEN.length}` },
-          ...KARTEN.map((_, j) => el('span', { class: j === i ? 'an' : '' })))));
+          ...KARTEN.map((_, j) => el('button', { class: j === i ? 'an' : '', 'aria-label': `Zu Schritt ${j + 1}`, onclick: () => waehle(j) }, el('span'))))));
     }, [
       { text: letzte ? 'Los geht’s' : 'Weiter', wert: 'weiter' },
+      ...(i > 0 ? [{ text: '← Zurück', wert: 'zurueck', hell: true }] : []),
       ...(letzte ? [] : [{ text: 'Überspringen', wert: 'ende', hell: true }]),
     ]);
-    if (w !== 'weiter') return;
+    if (typeof w === 'number') i = w;
+    else if (w === 'weiter') i++;
+    else if (w === 'zurueck') i = Math.max(0, i - 1);
+    else return;
   }
 }
 

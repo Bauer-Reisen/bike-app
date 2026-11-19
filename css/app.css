@@ -363,10 +363,11 @@ input[type="date"].feld { appearance: none; -webkit-appearance: none; }
 .tour { text-align: center; }
 .tour-icon { font-size: 3.5rem; margin: 16px 0 4px; }
 .tour p { text-align: left; font-size: 1.1rem; line-height: 1.5; }
-.tour-punkte { display: flex; justify-content: center; gap: 8px; }
+.tour-punkte { display: flex; justify-content: center; flex-wrap: wrap; }
 .tour .tour-punkte { text-align: center; }
-.tour-punkte span { width: 10px; height: 10px; border-radius: 5px; background: var(--linie); }
-.tour-punkte span.an { background: var(--primaer); }
+.tour-punkte button { width: 36px; height: 36px; padding: 0; border: 0; background: none; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+.tour-punkte button span { width: 11px; height: 11px; border-radius: 6px; background: var(--linie); }
+.tour-punkte button.an span { background: var(--primaer); transform: scale(1.3); }
 .neu-liste { padding-left: 1.2em; line-height: 1.5; }
 .neu-liste li { margin: 8px 0; }
 

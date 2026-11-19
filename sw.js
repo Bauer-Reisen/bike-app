@@ -3,7 +3,7 @@
 // nur wenn kein Netz da ist oder es zu lange dauert, die gespeicherte Kopie nehmen.
 // Wetter, Ortssuche und Kartenkacheln werden NICHT gespeichert.
 
-const VERSION = '0.3.2';
+const VERSION = '0.3.3';
 const CACHE = 'bike-app-' + VERSION;
 const DATEIEN = [
   './', 'index.html', 'manifest.webmanifest', 'css/app.css',
