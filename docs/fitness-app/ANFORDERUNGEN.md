@@ -1,7 +1,8 @@
 # Fitness-App – Anforderungen
 
 Stand: 23.11.2026. Planung, noch nichts gebaut.
-Grundlage: Berichte der Agenten A–H in [`grundlagen/`](grundlagen/) (F = Kritik). Bei Widersprüchen gilt die Auflösung von F, sofern unten nicht anders vermerkt.
+Grundlage: Berichte der Agenten A–H in [`grundlagen/`](grundlagen/) (F = Kritik), Runde 2: I (Training bei Gelenkerkrankungen), J (Gesundheitsabfrage, Startprofil), F2 (Kritik). Bei Widersprüchen gilt die Auflösung von F bzw. F2, sofern unten nicht anders vermerkt.
+Persönliche Gesundheitsangaben stehen nie im Repository, nur im Gerät.
 Kennzeichnung: **(ungeprüft)** = Faustregel oder Fakt ohne geprüfte Quelle; vor dem Bau bzw. im Test bestätigen.
 
 Rahmen: reine Web-App (HTML/CSS/JS) auf GitHub Pages, zum Home-Bildschirm hinzugefügt, ohne Server, ohne Anmeldung, ohne laufende Kosten, ohne KI-Schnittstellen. Alle Daten bleiben im iPhone. Training im Studio ohne freie Gewichte.
@@ -28,9 +29,18 @@ Rahmen: reine Web-App (HTML/CSS/JS) auf GitHub Pages, zum Home-Bildschirm hinzug
 - Bildschirm wach halten (Wake Lock, ab iOS 18.4 in Home-Bildschirm-Apps), abschaltbar; fehlt die Funktion, wird still darauf verzichtet.
 - Geräte-Einstellungen (Sitzhöhe, Lehne, Griff) beim Satz sichtbar, mit einem Tipp änderbar.
 - Jeder Satz wird sofort gespeichert; „Training fortsetzen?“ nach Unterbrechung; nach 4 h automatisch beendet.
-- Übung „später“ (Gerät besetzt) oder „tut weh“ (ausblenden, Alternative mit gleichem Muster).
-- **Nachträgliches Feedback:** beim ersten Öffnen 12–72 h nach einem Training eine Karte „kein · leicht · stark · überspringen“, bei leicht/stark optional Muskelgruppen antippen; zusätzlich „Schmerz, nicht Muskelkater“. Höchstens 1 Frage je Training, abschaltbar.
-- Steigerung, Entlastung und Wiedereinstieg nach Pausen automatisch nach den Regeln in Abschnitt 1a.
+- Übung „später“ (Gerät besetzt).
+- Knopf „Schmerz“ beim Satz (klein, neben den 4 Feedback-Knöpfen), danach Auswahl **„geht noch“** (bekanntes Gelenk; Satz zählt, keine Erhöhung) oder **„zu viel / neu“** (Übung beenden, Alternative oder kleinerer Bewegungsumfang). Ohne Tipp bleibt es bei 1 Tipp je Satz.
+- **Nachträgliches Feedback:** beim ersten Öffnen 12–72 h nach einem Training eine Karte „kein · leicht · stark · überspringen“ (Muskelkater), bei leicht/stark optional Muskelgruppen antippen; zusätzlich „Gelenk schlechter als sonst“ (wenn ein Gelenk eingetragen ist) bzw. „Schmerz, nicht Muskelkater“. Ohne Tipp = wie sonst. Höchstens 1 Karte je Training, abschaltbar.
+- **Förderblock** bei eingetragener Hüft- oder Daumen/Hand-Einschränkung: gezielte Übungen für Kraft, Beweglichkeit und Kontrolle (Abschnitt 1c), eigene Steigerung; dazu eine 5-Minuten-Mobilitätseinheit nach dem Aufwärmen und ein 3–4-Minuten-Handprogramm (als Text).
+- Steigerung, Entlastung und Wiedereinstieg nach Pausen automatisch nach den Regeln in Abschnitt 1a; Gelenkregeln nach Abschnitt 1c.
+
+**Gesundheitsabfrage und Startprofil** (vor dem ersten Training, ca. 2 Min.)
+- Teil A: 5 Ja/Nein-Fragen zu Warnzeichen (Herz/Blutdruck, Brustschmerz, Schwindel/Bewusstlosigkeit, Stoffwechsel-/Nierenerkrankung, Atemnot/Herzrasen), eigene Formulierung angelehnt an PAR-Q+ und das ACSM-Screening (Riebe et al. 2015). Ein „ja“ → Hinweis „vor dem Training ärztlich abklären“; Knöpfe „abgeklärt“ oder „trotzdem fortfahren“; keine Sperre, keine Auswertung.
+- Teil B (Auswahl): Körperstelle (Hüfte, Daumen/Hand, Knie, Schulter, Rücken, sonstige) × Seite × Art (Arthrose · Gelenkersatz mit OP-Monat · OP geplant mit Monat · akut · sonstiges); „Gibt es ärztliche oder physiotherapeutische Vorgaben?“ mit Häkchen (Abschnitt 1c) und Freitext. Freitext wird nur angezeigt.
+- Teil C: Erfahrung je Muster (Drücken, Ziehen, Beine, Rumpf): neu · früher regelmäßig · aktuell regelmäßig; Ausdauer locker am Stück (< 10 · 10–30 · 30–60 · > 60 Min.) als Info.
+- Erneut fragen: Karte „Alles gleich?“ alle 3 Monate (eigene Wahl); außerdem wenn der angegebene OP-Monat erreicht ist („Ist die OP erfolgt?“), nach mehr als 28 Tagen Pause und nach 2× „zu viel“ an derselben Übung oder im selben Muster innerhalb von 14 Tagen. Nie am selben Tag wie die Muskelkater-Karte.
+- Hinweis beim Backup: „Die Datei enthält Gesundheitsangaben.“ Knopf „Gesundheitsangaben löschen“.
 
 **Gerätekatalog**
 - 30 Vorlagen (Maschinen, Seilzug, Klimmzugstange, Dipstangen, Hyperextension-Bank, Boden, Medizin-/Gewichtsball, 5 Ausdauergeräte) mit Alternativnamen und zugeordneten Übungen (Tabelle in [`grundlagen/C.md`](grundlagen/C.md)). Abhaken „im Studio vorhanden“.
@@ -42,7 +52,8 @@ Rahmen: reine Web-App (HTML/CSS/JS) auf GitHub Pages, zum Home-Bildschirm hinzug
 - Gewicht mit Verlauf; Hauptzahl ist der 7-Tage-Mittelwert (mind. 4 Wiegungen in 7 Tagen, sonst „zu wenig Daten“). Kurze Messanleitung (morgens, nach Toilette, vor Essen, gleiche Waage).
 - Taillenumfang (Messstelle nach WHO: Mitte zwischen unterster Rippe und Beckenkamm, nach dem Ausatmen), Verlauf; Erinnerung alle 2–4 Wochen.
 - Weitere Umfänge (Brust, Oberarm, Oberschenkel) als optionale Messarten im gleichen Verlauf, ohne Einfluss auf Berechnungen.
-- Freitext „Beschwerden/Einschränkungen“ und „Unverträglichkeiten“, je Eintrag mit Datum und Status aktiv/erledigt; aktive Beschwerden werden im Training oben angezeigt, aber nicht ausgewertet.
+- Einschränkungen aus Teil B der Gesundheitsabfrage (aktiv/erledigt), im Training oben angezeigt; ausgewertet werden nur die Auswahlfelder (Abschnitt 1c), nicht der Freitext.
+- Freitext „Unverträglichkeiten“ mit Datum und Status aktiv/erledigt.
 
 **Ernährung**
 - Tagesziel kcal und Eiweiß aus Profil, Gewicht (7-Tage-Mittel), Ziel und Training (Regeln in Abschnitt 1b); Trainingstag mit Zuschlag, Pausentag ohne.
@@ -64,7 +75,9 @@ Rahmen: reine Web-App (HTML/CSS/JS) auf GitHub Pages, zum Home-Bildschirm hinzug
 ### Später
 - Training: zwei Plan-Varianten im Wechsel (A/B), Oberkörper/Unterkörper-Split ab ca. 4 Trainings pro Woche, Klimmzug-/Dip-Leiter (Negative → volle Wdh.), automatisches Deload, Übungstausch bei Stagnation, Testsätze zum Finden des Startgewichts, Aufwärmsatz-Berechnung, Supersätze, Ausführungsbilder, Ton beim Pausenende, Händigkeit.
 - Muskelkater 4 Stufen mit „Muster ersetzen“, Tagesform-Abfrage vor dem Training.
-- Körper: Taille/Größe-Hinweis (NICE: ab 0,5 erhöht) und Taillen-Grenzwerte (WHO: Männer ab 94 / 102 cm) als neutraler Hinweis; Beschwerden mit Körperregion/Seite/Stärke und Hinweispunkt bei passenden Übungen; Fotos.
+- Gelenke: Freitext-Stichwortsuche, die passende Einschränkungen zum Bestätigen vorschlägt (Liste in `grundlagen/J.md`); schnellere Steigerung bei früherer Erfahrung bis zum früheren Niveau; Zughilfen und Orthese als „habe ich“ mit Wirkung; Schmerz 0–10 im Alltag mit Verlauf; Seitentrennung bei einbeinigen Übungen; gespeicherte Anschläge je Gerät („Beinpresse ab Loch 5“); Gummiband/Knetball als Hilfsmittel mit Stufen; Funktionstests als Verlauf (30-Sekunden-Aufstehen, Einbeinstand); Ausführungsbilder. Lokales Sprachmodell für Freitext: geprüft, nicht vorgesehen (Aufwand, iPhone-Speicher).
+- Gerätekatalog als Datei an einen zweiten Nutzer weitergeben (ohne Gesundheits- und Trainingsdaten).
+- Körper: Taille/Größe-Hinweis (NICE: ab 0,5 erhöht) und Taillen-Grenzwerte (WHO: Männer ab 94 / 102 cm) als neutraler Hinweis; Fotos.
 - Ernährung: Kalorienziel am Gewichtstrend nachjustieren (Regel steht schon fest, Abschnitt 1b); Barcode-Scan mit Open Food Facts; größere Lebensmittelliste aus dem Bundeslebensmittelschlüssel (BLS 4.0, Lizenz klären); Unverträglichkeiten als Filter-Tags; Handmaß-Portionen; Mahlzeit-Vorlagen aus mehreren Zutaten; Fett/Kohlenhydrate.
 - Daten: Zusammenführen beim Import, Schema-Migration (sobald es Version 2 gibt), mehrere Profile auf einem Gerät, Gerätekatalog an andere weitergeben, mehrere Studios.
 - Supplements: Kreatin als tägliches Abhaken.
@@ -77,8 +90,8 @@ Quellen: ACSM Position Stand 2009 (Progression Models), WHO-Leitlinien 2020, Sch
 
 | Thema | Regel |
 |---|---|
-| Plan | Ganzkörper: je 1 Übung Drücken, Ziehen, Beine, Rumpf, optional 1 Zusatzübung. Je Muster eine Prioritätsliste; genommen wird die erste Übung mit vorhandenem Gerät, mehrgelenkig vor eingelenkig. |
-| Einstieg | Erste 14 Tage ab dem ersten Training: 2 Sätze, Ziel 10–12 Wdh., bewusst leicht. Danach 3 Sätze. Startstufe gibt der Nutzer ein (Vorschlag: kleinste Stufe); ab Satz 2 korrigiert die Feedback-Regel. |
+| Plan | Ganzkörper: je 1 Übung Drücken, Ziehen, Beine, Rumpf, danach Förderblock (Abschnitt 1c) bzw. ohne Einschränkungen optional 1 Zusatzübung. Je Muster eine Prioritätsliste; Auswahl nach Abschnitt 1c (Filter), sonst erste Übung mit vorhandenem Gerät, mehrgelenkig vor eingelenkig. |
+| Einstieg | Je Übung ein Einstieg (`einstiegBis`) nach Erfahrung im Muster: neu 14 Tage · früher 7 Tage · aktuell keiner. Im Einstieg 2 Sätze, Ziel 10–12 Wdh., bewusst leicht; danach 3 Sätze. Mit Gelenkeintrag im Muster gilt immer „neu“. Eine Ersatzübung übernimmt den Einstieg des Musters. Startstufe gibt der Nutzer ein (Vorschlag: kleinste Stufe, bei „früher“/„aktuell“ frei); ab Satz 2 korrigiert die Feedback-Regel. Steigerung immer nach den Regeln unten (Wiedereinstieg geht schneller als Neuanfang: Bosquet et al. 2013, Blocquiaux et al. 2020 – das erledigt die Feedback-Schleife ohne Sonderregel). |
 | Bereich | Maschinen 8–12 Wdh. Rumpf je Übung fest: Zeit 20–60 s (Steigerung +10 s) oder 10–15 Wdh. Körpergewicht: Steigerung über Wdh. |
 | Feedback-Stufen | easy = ≥ 4 Wdh. wären noch gegangen · passend = 2–3 · gerade so = 0–1 · nicht geschafft = Ziel verfehlt. Satz ohne Feedback = „nicht bewertet“, zählt nicht für Steigerung. |
 | Im selben Training (Folgesatz) | easy → +2 Wdh. (höchstens Obergrenze); 2. easy in Folge → +1 Stufe. passend → gleich. gerade so → Ziel −1 Wdh. nicht geschafft → −1 Stufe. Senken ist immer erlaubt, Erhöhen höchstens 1× je Übung und Training. |
@@ -88,7 +101,7 @@ Quellen: ACSM Position Stand 2009 (Progression Models), WHO-Leitlinien 2020, Sch
 | Pausen | Tage seit letztem Training: ≤ 7 normal · 8–14 keine Steigerung, Ziel −2 Wdh. · 15–28 −1 Stufe und 2 Sätze für ein Training · > 28 −2 Stufen und Einstieg (2 Sätze) für 7 Tage. Ab 8 Tagen Pause beginnt die Zählung „in Folge“ neu. |
 | Kurzer Abstand | Weniger als 48 h seit dem letzten Training: „Ruhetag empfohlen“; wird trotzdem trainiert, keine Erhöhung und −1 Satz je Übung **(ungeprüft)**. |
 | Muskelkater | Muskelgruppen: Brust/Schulter, Rücken, Arme, Beine, Rumpf. leicht → keine Wirkung. stark → Übungen dieser Gruppe ohne Erhöhung, −1 Satz. Muskelkater zählt nie als Fehlschlag. |
-| Schmerz | „Schmerz, nicht Muskelkater“ oder „tut weh“ bei einer Übung → keine Regel, nur Hinweis „ärztlich oder physiotherapeutisch abklären“ und Angebot, die Übung auszublenden. Feste Zeile: „Bei Schmerz, Schwindel, Brustdruck abbrechen.“ |
+| Schmerz | Schmerzmeldungen senken oder halten nur, nie erhöhen (Einzelheiten Abschnitt 1c). Bei „zu viel / neu“ und „Schmerz, nicht Muskelkater“ zusätzlich Hinweis „ärztlich oder physiotherapeutisch abklären“. Feste Zeile: „Bei Schmerz, Schwindel, Brustdruck abbrechen.“ |
 | Untergrenze | Abzüge stapeln sich höchstens bis 1 Satz je Übung. |
 | Entlastung | Kein automatisches Deload. Nach 2 verfehlten Trainings in Folge mit mindestens 2 betroffenen Übungen bietet die App eine leichte Woche an (Sätze halbieren). |
 | Aufwärmen | 5–8 Min. Laufband, Ergometer, Air Bike oder Rudergerät locker; Dauer optional erfassen. |
@@ -104,6 +117,41 @@ Quellen: ACSM Position Stand 2009 (Progression Models), WHO-Leitlinien 2020, Sch
 - Rundung auf 50 kcal und 5 g Eiweiß. Untergrenze kcal = Grundumsatz.
 - Später, Nachjustieren: erste Anpassung frühestens 21 Tage nach Start (und nach Beginn von Kreatin, wegen Wasser); dann Wochenmittel jetzt gegen vor 14 Tagen; Vorschlag ±150 kcal, nur mit Bestätigung, frühestens 14 Tage nach der letzten Änderung.
 
+## 1c. Gelenkregeln und Förderung Version 1
+
+Grundsatz: Die App urteilt nicht medizinisch und setzt keine eigenen Fristen nach Operationen. Sie filtert und markiert Übungen nach den eigenen Angaben, schlägt gezielte Übungen vor und verweist auf ärztliche bzw. physiotherapeutische Vorgaben. Alles automatisch Ausgeblendete ist als „vorsorglich ausgeblendet“ gekennzeichnet und mit einem Tipp wieder einblendbar. Nicht verwendete Wörter: „sicher“, „gelenkschonend“, „geeignet bei Arthrose“, „Therapie“.
+
+Quellen: Bewegungstraining bei Hüft- und Handarthrose stark empfohlen (ACR/AF 2019, Kolasinski et al. 2020; OARSI 2019, Bannuru et al.; EULAR 2018, Rausch Osthoff et al.; EULAR Handarthrose, Kloppenburg et al. 2019). Training senkt Hüftschmerz und verbessert die Funktion im Mittel wenig bis mäßig (Cochrane, Fransen et al. 2014); Gerätekrafttraining wirkt ähnlich wie neuromuskuläres Training (Ann Intern Med 2024). Übungen vor einer Hüft-OP verbessern Schmerz und Funktion klein bis mittel (Gill & McBurney 2013, Moyer et al. 2017). Schmerzgrenzen nach dem Modell aus NEMEX-TJR (Ageberg et al. 2010). Klassische Vorsichtsregeln nach Hüft-TEP zeigen keinen klaren Einfluss auf Luxationen (Crompton et al. 2020) – deshalb gelten nur die Vorgaben, die der Nutzer einträgt. Fester Faustschluss belastet das Daumensattelgelenk am stärksten (biomechanische Übersichten, `grundlagen/I.md`).
+
+**Belastungsmerkmale je Übung** (Daten-Datei; Tabelle für alle Vorlagen in `grundlagen/I.md`, Winkel geschätzt **(ungeprüft)**, im Studio prüfen):
+`griff` (keiner · leicht · druck · zug_mittel · zug_stark · stuetz_flach · ball) · `hueftbeugung` (gering · mittel · tief) + `begrenzbar` (ja/nein) · `hueftrotation` (nein · innen · aussen · beide) · `adduktion` (nein · bis_mitte · ueber_mitte) · `stoss` (kein · gering · hoch). Eigene Übungen: „unbekannt“ → Hinweis, wenn Einschränkungen aktiv sind.
+
+**Welcher Eintrag welche Regel auslöst**
+
+| Eintrag | Regel |
+|---|---|
+| Hüfte + Arthrose | `stoss = hoch` vorsorglich ausgeblendet. `hueftbeugung = tief`: mit `begrenzbar = ja` Hinweis „Bewegungsumfang über Sitz/Anschlag begrenzen, nur schmerzarmer Bereich“; mit `begrenzbar = nein` nach hinten. Rotation unter Last: Hinweis. |
+| Hüfte + Gelenkersatz | Frage „Gibt es Vorgaben?“ mit Häkchen: nicht über 90° beugen · nicht nach innen drehen · nicht nach außen drehen · Beine nicht überkreuzen · kein Springen/Laufen · weiß nicht. Jedes Häkchen schließt das passende Merkmal aus (`tief`, `innen`/`beide`, `aussen`/`beide`, `ueber_mitte`, `stoss = hoch`); bei `begrenzbar = ja` statt Ausschluss Pflichthinweis „Anschlag laut Vorgabe einstellen“. „nein“ → nur Hinweise. „weiß nicht“ → Merkmale tief/Rotation/Adduktion vorsorglich ausgeblendet und Hinweis „Vorgaben bei Operateur oder Physiotherapie erfragen und eintragen“. Liegt die OP weniger als 12 Monate zurück, zusätzlich derselbe Hinweis bei jedem Trainingsstart. |
+| Hüfte + OP geplant | wie Arthrose; Förderblock wird nie gekürzt; im OP-Monat Frage „Ist die OP erfolgt?“ → dann Eintrag Gelenkersatz mit Hinweis „Start erst mit ärztlicher oder physiotherapeutischer Freigabe; Vorgaben eintragen“. |
+| Daumen/Hand + Arthrose | `griff = zug_stark` und `stuetz_flach` nach hinten und markiert; gibt es im Muster eine Übung mit höchstens `leicht`/`druck`, wird diese genommen. Hinweise: „Drücken mit offener Hand“, „Griff ohne Daumen“, „Steckbolzen mit ganzer Hand“. |
+| Knie, Schulter, Rücken, sonstige | Nur Anzeige im Training, keine automatische Regel. |
+
+**Auswahl je Muster:** ausgeblendete Übungen raus → nach (markiert/nach hinten, dann Priorität) stabil sortieren → erste nehmen. Sind alle Übungen eines Musters ausgeblendet, entfällt das Muster in diesem Training mit Hinweis.
+
+**Schmerz im Training**
+- „geht noch“ → bei dieser Übung keine Erhöhung in diesem und im nächsten Training. „zu viel / neu“ → Übung beenden, Alternative mit gleichem Muster oder kleinerer Bewegungsumfang anbieten.
+- Muskelkater-Karte mit „Gelenk schlechter als sonst“: 1× → im nächsten Training alle Übungen mit Schmerzmeldung ohne Erhöhung und −1 Satz; 2× in Folge an derselben Übung → vorsorglich ausgeblendet, Alternative, Hinweis auf Abklärung.
+- In der App keine Ampelwörter; intern entspricht „geht noch“ etwa Schmerz bis 5 von 10, „zu viel“ darüber (Ageberg 2010).
+
+**Förderblock** (nach den Hauptmustern, ersetzt die Zusatzübung)
+- 1 Übung je aktiver Hüft- bzw. Daumen/Hand-Einschränkung, höchstens 2 je Training.
+- Hüfte, im Wechsel je Training: Abduktion (Abduktoren-Maschine „Beine öffnen“, Seilzug-Abduktion mit Fußschlaufe, Seitlage-Abduktion) → Streckung (Gesäßmaschine, Seilzug-Hüftstreckung, Brücke, Hyperextension-Bank) → Kontrolle/Funktion (Aufstehen vom Sitz ohne Hände, Einbeinstand neben Stütze). Clamshell nur ohne Vorgabe zur Drehung. Alle Förderübungen laufen durch dieselben Filter.
+- Bereich 10–15 Wdh. bzw. Haltezeit; in den ersten 4 Wochen 2 Sätze, danach 3. Erhöhung nur ohne Schmerzmeldung in den letzten 2 Trainings, sonst Regeln aus 1a. Einbeinige Übungen beidseitig, mit der leichteren Seite beginnen.
+- Muster Beine bei Hüfteintrag: zuerst Übungen mit `begrenzbar = ja` oder geringer Beugung.
+- **Mobilitätseinheit** (ca. 5 Min. nach dem Aufwärmen, bei Hüfteintrag fest): Bein vor/zurück pendeln, Bein seitlich pendeln (bei „nicht überkreuzen“ nur nach außen), Hüftstreckung im Schrittstand, Becken kippen in Rückenlage; je 8–10 langsame Wdh. im schmerzarmen Bereich. 1 Tipp: „gut“ · „Schmerz“. Steigerung 8 → 12 Wdh., danach Hinweis „etwas weiter bewegen, solange es sich gut anfühlt“, nur ohne Schmerzmeldung in den letzten 2 Einheiten. Dosis ist Praxis **(ungeprüft)**.
+- **Handprogramm** (3–4 Min., in einer Pause oder zu Hause): Daumen zu jeder Fingerspitze als rundes „O“ ohne Druck, 10× · Zeigefinger seitlich gegen die andere Hand abspreizen, 5 × 5 s · Daumen in C-Form gegen die andere Handfläche drücken, 5 × 5 s · Handflächen flach auf den Medizinball legen und rollen. Nur schmerzarm; Feedback und Steigerung wie Mobilitätseinheit. Inhalt angelehnt an EULAR 2019 und Valdes & von der Heyde 2012 **(Programm im Volltext ungeprüft)**.
+- Fester Hinweis: „Übungen helfen im Mittel wenig bis mäßig und ersetzen keine Behandlung.“
+
 ---
 
 ## 2. Datenmodell
@@ -113,14 +161,16 @@ IndexedDB, Datenbankname `fitness-app`. Jeder Eintrag: `id` (zufällig), `geaend
 | Speicher | Felder | Hinweis |
 |---|---|---|
 | `kv` | Einstellungen: `portionShake`, `wakeLock`, `katerFrage`, `letztesBackup`, `heuteTraining` (Datum), `supplementeMarkiert[]` | Schlüssel/Wert |
-| `profil` | `geburtsdatum`, `geschlecht`, `groesseCm`, `alltagsfaktor`, `ziel`, `startDatum` | genau 1 Eintrag; `id` bereitet spätere Profile vor |
+| `profil` | `geburtsdatum`, `geschlecht`, `groesseCm`, `alltagsfaktor`, `ziel`, `startDatum`, `erfahrung` {`druecken`, `ziehen`, `beine`, `rumpf`: `neu`/`frueher`/`aktuell`}, `ausdauerMinuten` | genau 1 Eintrag; `id` bereitet spätere Profile vor |
+| `gesundheit` | `datum`, `anlass` (`erst`/`turnus`/`op`/`pause`/`schmerz`/`manuell`), `warnzeichen` {`herz`, `brust`, `schwindel`, `stoffwechsel`, `atemnot`}, `abgeklaertAm`, `trotzdemAm`, `naechstePruefung` | eine Zeile je Abfrage, nie überschreiben |
+| `einschraenkungen` | `stelle`, `seite` (`links`/`rechts`/`beide`), `art` (`arthrose`/`gelenkersatz`/`opGeplant`/`akut`/`sonstiges`), `opMonat` (JJJJ-MM), `vorgaben` {`beugung90`, `innen`, `aussen`, `ueberkreuzen`, `stoss`, `weissNicht`}, `vorgabeText`, `status` (`aktiv`/`erledigt`), `beginn`, `erledigtAm` | wird von den Regeln in 1c gelesen |
 | `messungen` | `datum`, `art` (`gewicht`, `taille`, `brust`, `oberarm`, `oberschenkel`), `wert`, `einheit`, `notiz` | eine Zeile je Messung; neue Arten ohne Schemaänderung |
-| `notizen` | `typ` (`beschwerde`, `unvertraeglichkeit`), `text`, `beginn`, `status` (`aktiv`/`erledigt`), `erledigtAm` | nie überschreiben, nur Status ändern |
+| `notizen` | `typ` (`unvertraeglichkeit`), `text`, `beginn`, `status` (`aktiv`/`erledigt`), `erledigtAm` | nie überschreiben, nur Status ändern |
 | `geraete` | `vorlageId` oder eigene Felder (`name`, `muster`, `belastungsart`: `kg`/`koerper`/`zeit`/`ausdauer`/`ball`), `vorhanden`, `stufen[]`, `zusatz[]`, `anzeige` (`kg`/`stufe`), `einstellungen[{name, wert}]`, `notiz` | Vorlage wird nur referenziert, Nutzerwerte überschreibt kein Update |
-| `uebungen` | eigene Übungen: `name`, `muster`, `muskelgruppe`, `belastungsart`, `hinweis` | Vorlagen-Übungen aus der Daten-Datei |
-| `geraetUebung` | `geraetId`, `uebungId`, `ausgeblendet`, `stand` {`stufenIndex`, `zielWdh`, `saetze`, `erfuelltInFolge`, `verfehltInFolge`, `easyInFolge`} | hieran hängen Fortschritt und Steigerung |
-| `trainings` | `start`, `ende`, `status` (`laeuft`/`beendet`), `aufwaermen` {`geraetId`, `minuten`}, `uebungen[]` (Reihenfolge, Vorgaben), `aenderungen[]` (Text für Abschluss), `nachbefragung` {`stufe`: kein/leicht/stark/schmerz/keine Angabe, `gruppen[]`, `am`}, `pauseEndeUm` | `pauseEndeUm` für den Timer |
-| `saetze` | `trainingId`, `geraetUebungId`, `nr`, `stufenIndex`, `zusatz`, `wdh`, `sekunden`, `feedback` (`easy`/`passend`/`geradeSo`/`nichtGeschafft`/`nichtBewertet`), `zeit` | sofort beim Tipp gespeichert |
+| `uebungen` | eigene Übungen: `name`, `muster` (inkl. `foerderung`, `mobilitaet`, `hand`), `muskelgruppe`, `belastungsart`, `belastung` {`griff`, `hueftbeugung`, `begrenzbar`, `hueftrotation`, `adduktion`, `stoss`}, `hinweis` | Vorlagen-Übungen aus der Daten-Datei mit denselben Feldern |
+| `geraetUebung` | `geraetId`, `uebungId`, `ausgeblendet` (`nein`/`nutzer`/`vorsorglich`), `stand` {`stufenIndex`, `zielWdh`, `saetze`, `einstiegBis`, `erfuelltInFolge`, `verfehltInFolge`, `easyInFolge`, `schmerzSperreBis`, `gelenkSchlechterInFolge`} | hieran hängen Fortschritt und Steigerung |
+| `trainings` | `start`, `ende`, `status` (`laeuft`/`beendet`), `aufwaermen` {`geraetId`, `minuten`}, `uebungen[]` (Reihenfolge, Vorgaben), `aenderungen[]` (Text für Abschluss), `nachbefragung` {`stufe`: kein/leicht/stark/schmerz/keine Angabe, `gruppen[]`, `gelenkSchlechter`, `am`}, `pauseEndeUm` | `pauseEndeUm` für den Timer |
+| `saetze` | `trainingId`, `geraetUebungId`, `nr`, `stufenIndex`, `zusatz`, `wdh`, `sekunden`, `feedback` (`easy`/`passend`/`geradeSo`/`nichtGeschafft`/`nichtBewertet`), `schmerz` (`null`/`gehtNoch`/`zuViel`), `zeit` | sofort beim Tipp gespeichert |
 | `essen` | `datum`, `zeit`, `name`, `kcal`, `eiweiss`, `portion`, `quelle` (`shake`/`grundliste`/`vorschlag`/`frei`), `vorlageId` | |
 | `favoriten` | `name`, `kcal`, `eiweiss`, `portion` | eigene Lebensmittel/Mahlzeiten |
 
@@ -176,3 +226,5 @@ Vollständige Quellen mit Links: [`grundlagen/H.md`](grundlagen/H.md), Prüfung:
 3. Vor „Barcode später“: Darf der Browser Open Food Facts direkt abfragen (CORS)? Aus der Planungsumgebung nicht testbar.
 4. DGE-PAL-Stufen und MET-Wert Gerätetraining (Abschnitt 1b).
 5. Lizenz BLS 4.0, falls die Grundliste daraus kommen soll; sonst Werte aus Packungsangaben/eigener Quelle mit Quellenfeld.
+6. Belastungsmerkmale (Winkel, Griff) im Studio an den echten Geräten prüfen, am besten mit Physiotherapie; die eigenen ärztlichen Vorgaben zur Hüftprothese erfragen.
+7. PAR-Q+ aktuelle Fassung (eparmedx.com) lesen; eigene Formulierungen verwenden (Urheberrecht des Bogens).
