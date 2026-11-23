@@ -7,7 +7,7 @@ Jeder Abschnitt endet mit einem Test, der ohne die späteren Abschnitte funktion
 ---
 
 ## Abschnitt 1 – Grundgerüst und Installation
-- Repository, GitHub Pages, `index.html`, `manifest.webmanifest` (`display: standalone`, eigene `id`/`scope`), Icons, `sw.js` mit Cache-Präfix `fitness-app-`, `version.json`.
+- Eigenes Repository `fitness-app` (entschieden), öffentlich, damit GitHub Pages im kostenlosen Tarif läuft; diese Planungsdokumente dorthin unter `docs/` umziehen. `index.html`, `manifest.webmanifest` (`display: standalone`, eigene `id`/`scope`), Icons, `sw.js` mit Cache-Präfix `fitness-app-`, `version.json`.
 - `js/db.js` aus der Bike-App übernehmen, Datenbankname `fitness-app`, alle Speicher aus dem Datenmodell anlegen.
 - Leiste unten: Heute · Training · Essen · Körper · Mehr.
 - `tools/check-privat.mjs` (vor jedem Push), `tools/check-sw.mjs` (jede Datei aus `js/` und `daten/` steht in der Cache-Liste), `tools/server.mjs`.
